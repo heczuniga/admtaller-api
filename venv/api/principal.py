@@ -1,13 +1,91 @@
 
+from typing import List
 import fastapi
+from models.principal import Resumen
+from models.principal import Dashboard
 
 router = fastapi.APIRouter()
 
 
-@router.get("/api/principal/")
-def login():
-    value: str = "principal"
-    result = {
-        "datos": value
-    }
-    return result
+@router.get("/api/principal/{id_usuario}")
+def principal(id_usuario: int):
+    nc: str = None    
+    d: List[Dashboard] = []
+    r: List[Resumen] = []
+
+    if id_usuario == 1:
+        nc = "Gastronomía"
+        r = [
+                {
+                    "concepto": "Cantidad de asignaturas",
+                    "valor": 11,
+                },
+                {
+                    "concepto": "Cantidad de talleres",
+                    "valor": 138,
+                },
+                {
+                    "concepto": "Cantidad de productos",
+                    "valor": 1798,
+                },
+                {
+                    "concepto": "Cantidad de docentes",
+                    "valor": 16,
+                },
+        ]             
+        d.append(Dashboard(nc, r))
+
+        nc = "Administración hotelera"
+        r = [
+                {
+                    "concepto": "Cantidad de asignaturas",
+                    "valor": 5,
+                },
+                {
+                    "concepto": "Cantidad de talleres",
+                    "valor": 64,
+                },
+                {
+                    "concepto": "Cantidad de productos",
+                    "valor": 1187,
+                },
+                {
+                    "concepto": "Cantidad de docentes",
+                    "valor": 3,
+                },
+        ]             
+        d.append(Dashboard(nc, r))
+    
+    if id_usuario == 2:
+        nc = "Gastronomía"
+        r = [
+                {
+                    "concepto": "Cantidad de asignaturas",
+                    "valor": 11,
+                },
+                {
+                    "concepto": "Cantidad de talleres",
+                    "valor": 138,
+                },
+                {
+                    "concepto": "Cantidad de productos",
+                    "valor": 1798,
+                },
+                {
+                    "concepto": "Cantidad de docentes",
+                    "valor": 16,
+                },
+        ]             
+        d.append(Dashboard(nc, r))
+
+    if id_usuario == 3:
+        nc = "Administración hotelera"
+        r = [
+                {
+                    "concepto": "Cantidad de talleres asignados",
+                    "valor": 4,
+                },
+        ]             
+        d.append(Dashboard(nc, r))
+
+    return d

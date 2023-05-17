@@ -5,6 +5,7 @@ import fastapi
 # Importación de routers
 from api import autenticacion
 from api import usuarios
+from api import perfiles
 from api import principal
 from api import asignaturas
 from api import programacion
@@ -21,6 +22,7 @@ api = fastapi.FastAPI()
 def configura_routers():
     api.include_router(autenticacion.router)
     api.include_router(usuarios.router)
+    api.include_router(perfiles.router)
     api.include_router(principal.router)
     api.include_router(asignaturas.router)
     api.include_router(programacion.router)

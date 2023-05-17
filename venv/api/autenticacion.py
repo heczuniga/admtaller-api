@@ -11,40 +11,45 @@ router = fastapi.APIRouter()
 
 
 @router.post("/api/autenticacion/", response_model=Autenticacion, name="Autenticar un usuario y contraseña")
-def autenticacion(autenticacion: Autenticacion) -> Autenticacion:
+async def autenticacion(autenticacion: Autenticacion) -> Autenticacion:
 
     # Limpiamos la data ingresada
     autenticacion.login = autenticacion.login.strip()
 
+    if autenticacion.login == "admin@duoc.cl" and autenticacion.password == "admin":
+        autenticacion.autenticado = True
+
     if autenticacion.login == "jmoya@duoc.cl" and autenticacion.password == "jmoya":
         autenticacion.autenticado = True
-    else:
-        autenticacion.autenticado = False
 
+    if autenticacion.login == "maalvarez@duoc.cl" and autenticacion.password == "maalvarez":
+        autenticacion.autenticado = True
+
+    # Limpiamos la password
     autenticacion.password = None
-        
+
     return autenticacion
 
 
 @router.post("/api/perfil/")
 def perfil(login: str) -> Perfil:
-    
+
     p: Perfil = None
 
     # Limpiamos la data ingresada
     login = login.strip()
-    
+
     if login == "admin":
         p = Perfil(cod_perfil=0, nom_perfil="Administrador")
-        
+
     if login == "jmoya@duoc.cl":
         p = Perfil(cod_perfil=1, nom_perfil="Administrador de carrera", cod_carrera=1, nom_carrera="Gastronomía")
-    
+
     if login == "maalvarez@duoc.cl":
         p = Perfil(cod_perfil=2, nom_perfil="Docente", cod_carrera=1, nom_carrera="Gastronomía")
-    
+
     return p
-    
+
 
 @router.post("/api/perfil/lista/")
 def listaperfil(login: str) -> List[ItemMenu]:

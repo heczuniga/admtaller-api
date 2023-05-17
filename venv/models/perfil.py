@@ -6,8 +6,7 @@ from typing import Optional
 class Perfil(BaseModel):
     cod_perfil: int
     nom_perfil: str
-    cod_carrera: Optional[int] = None
-    nom_carrera: Optional[str] = None
+    descripcion: str
 
 
 class ItemMenu(BaseModel):
