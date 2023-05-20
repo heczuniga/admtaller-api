@@ -31,7 +31,7 @@ async def autenticacion(autenticacion: Autenticacion) -> Autenticacion:
     return autenticacion
 
 
-@router.post("/api/perfil/")
+@router.post("/api/perfil/", response_model=Perfil, name="Recuperar un perfil del sistema")
 def perfil(login: str) -> Perfil:
 
     p: Perfil = None

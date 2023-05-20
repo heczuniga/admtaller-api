@@ -2,6 +2,7 @@
 import fastapi
 from models.perfil import Perfil
 from datetime import date
+from typing import List
 
 router = fastapi.APIRouter()
 
@@ -41,3 +42,18 @@ async def perfil_nom_usuario(id_usuario: int):
         return {
             "nom_carrera": "Administración hotelera",
         }
+
+
+@router.get("/api/perfil/lista", response_model=List[dict], summary="Obtener la lista de perfiles desde el sistema")
+async def perfil_lista():
+    perfil: Perfil = None
+    lista_perfil: List[Perfil] = []
+
+    perfil = Perfil(cod_perfil=0, nom_perfil="Administrador TI", descripcion="Administrador desde el punto de vista TI del sistema. En resumen, tiene acceso a todo. Es el alfa y el omega del sistema.")
+    lista_perfil.append(perfil)
+    perfil = Perfil(cod_perfil=1, nom_perfil="Administrador de carrera", descripcion="Administrador de entidades del sistema, usuarios y perfiles. También accede a reportes de gestión.")
+    lista_perfil.append(perfil)
+    perfil = Perfil(cod_perfil=2, nom_perfil="Docente", descripcion="Docentes de la carrera responsables de la ejecución del taller.")
+    lista_perfil.append(perfil)
+
+    return lista_perfil
