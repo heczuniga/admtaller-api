@@ -7,7 +7,7 @@ from typing import List
 router = fastapi.APIRouter()
 
 
-@router.get("/api/perfil/usuario/{id_usuario}", response_model=Perfil, summary="Obtener el perfil de un usuario con un id específico")
+@router.get("/api/perfil/usuario/{id_usuario}", response_model=Perfil, summary="Obtener el perfil de un usuario coa través de su id")
 async def perfil_usuario(id_usuario: int):
     perfil: Perfil = None
 
@@ -19,13 +19,6 @@ async def perfil_usuario(id_usuario: int):
         perfil = Perfil(cod_perfil=2, nom_perfil="Docente", descripcion="Docentes de la carrera responsables de la ejecución del taller.")
 
     return perfil
-
-
-@router.get("/api/param/ano_academ/valor", response_model=dict, summary="Obtener el valor del parámetro año académico vigente")
-async def param_ano_academ_valor():
-    return {
-        "ano_academ": date.today().year,
-    }
 
 
 @router.get("/api/perfil/nom_carrera/{id_usuario}", response_model=dict, summary="Obtener el nombre de la carrera asignada al usuario respectivo")
@@ -44,8 +37,8 @@ async def perfil_nom_usuario(id_usuario: int):
         }
 
 
-@router.get("/api/perfil/lista", response_model=List[dict], summary="Obtener la lista de perfiles desde el sistema")
-async def perfil_lista():
+@router.get("/api/perfil/lista/{id_usuario}", response_model=List[dict], summary="Obtener la lista de perfiles desde el sistema")
+async def perfil_lista(id_usuario: int):
     perfil: Perfil = None
     lista_perfil: List[Perfil] = []
 

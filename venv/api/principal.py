@@ -1,6 +1,7 @@
 
 from typing import List
 import fastapi
+from fastapi import Request
 from models.principal import Resumen
 from models.principal import Dashboard
 
@@ -8,8 +9,8 @@ router = fastapi.APIRouter()
 
 
 @router.get("/api/principal/{id_usuario}")
-def principal(id_usuario: int):
-    nc: str = None    
+async def principal(id_usuario: int):
+    nc: str = None
     d: List[Dashboard] = []
     r: List[Resumen] = []
 

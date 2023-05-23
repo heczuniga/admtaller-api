@@ -14,6 +14,7 @@ from api import producto
 from api import registro
 from api import taller
 from api import carrera
+from api import param
 
 # Instanciamos la aplicación
 api = fastapi.FastAPI()
@@ -32,6 +33,7 @@ def configura_routers():
     api.include_router(registro.router)
     api.include_router(taller.router)
     api.include_router(carrera.router)
+    api.include_router(param.router)
 
 
 # Método de configuración general, que llama a los otros sub-métodos
