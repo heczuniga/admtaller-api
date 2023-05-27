@@ -540,6 +540,39 @@ def usuario_lista(id_usuario: int):
 def usuario_get(id_usuario_editar: int, id_usuario: int):
     u: Usuario
 
+    if id_usuario_editar == -1:
+        u = {
+            "id_usuario": None,
+            "login": None,
+            "hash_password": None,
+            "primer_apellido": None,
+            "segundo_apellido": None,
+            "nom": None,
+            "nom_preferido": None,
+            "cod_perfil": None,
+            "cod_carrera": None,
+            "nom_perfil": None,
+            "nom_carrera": None,
+        }
+        return u
+
+    if id_usuario_editar == 18:
+        u = {
+            "id_usuario": 18,
+            "login": "de.reglas@profesor.duoc.cl",
+            "hash_password": "AHDGSJHGJAHDGJHGDJYTULKDLKLD",
+            "primer_apellido": "Reglas",
+            "segundo_apellido": "Villagra",
+            "nom": "Deyanira",
+            "nom_preferido": "Deyanira",
+            "cod_perfil": 2,
+            "cod_carrera": 1,
+            "nom_perfil": "Docente",
+            "nom_carrera": "Gastronomía"
+        }
+
+        return u
+        
     if id_usuario == 1:
         u = {
             "id_usuario": 3,
@@ -606,6 +639,24 @@ async def usuario_modificar(usuario: Usuario, id_usuario_modificar) -> Usuario:
         "segundo_apellido": "Román",
         "nom": "Marco Aurelio",
         "nom_preferido": "Marco",
+        "cod_perfil": 2,
+        "cod_carrera": 1,
+        "nom_perfil": "Docente",
+        "nom_carrera": "Gastronomía"
+    }
+
+
+@router.post("/api/usuario", response_model=dict, name="Agregar un usuario")
+async def usuario_insertar(usuario: Usuario) -> Usuario:
+
+    return {
+        "id_usuario": 18,
+        "login": "de.reglas@profesor.duoc.cl",
+        "hash_password": "AHDGSJHGJAHDGJHGDJYTULKDLKLD",
+        "primer_apellido": "Reglas",
+        "segundo_apellido": "Villagra",
+        "nom": "Deyanira",
+        "nom_preferido": "Deyanira",
         "cod_perfil": 2,
         "cod_carrera": 1,
         "nom_perfil": "Docente",
