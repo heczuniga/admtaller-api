@@ -6,7 +6,7 @@ from typing import Optional
 class Usuario(BaseModel):
     id_usuario: int
     login: str
-    hash_password: str
+    hash_password: Optional[str]
     primer_apellido: str
     segundo_apellido: str
     nom: str
