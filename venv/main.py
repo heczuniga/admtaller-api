@@ -18,7 +18,37 @@ from api import param
 from database import get_db_connection
 
 # Instanciamos la aplicación
-api = fastapi.FastAPI()
+api = fastapi.FastAPI(
+    title="API's para sistema de administración de talleres DuocUC",
+    description="Catálogo de API's construidas para dar servicio al sistema web de administración de talleres DuocUC para las carreras de gastronomía y administración hotelera",
+    openapi_tags=[
+        {"name": "Asignaturas",
+         "description": "API's relacionadas con asignaturas, principalmente CRUD y funciones especiales"},
+        {"name": "Autenticación",
+         "description": "API's relacionadas con la autenticación de usuario, autenticación, cambio de contraseña u otras"},
+        {"name": "Carreras",
+         "description": "API's relacionadas con la administración de carreras"},
+        {"name": "Parámetros",
+         "description": "API's relacionadas con los parámetros del sistema"},
+        {"name": "Perfiles",
+         "description": "API's relacionadas con los perfiles del sistema o asociadas al perfilamiento del usuario"},
+        {"name": "Principal",
+         "description": "API's relacionadas con el dashboard que se muestra en la página principal de un usuario ya autenticado"},
+        {"name": "Productos",
+         "description": "API's relacionadas con los productos del sistema"},
+        {"name": "Programación",
+         "description": "API's relacionadas con la programación de los talleres"},
+        {"name": "Reportes",
+         "description": "API's relacionadas con los reportes de gestión"},
+        {"name": "Talleres",
+         "description": "API's relacionadas con la administración de los talleres"},
+        {"name": "Usuarios",
+         "description": "API's relacionadas con la administración de usuarios"},
+    ],
+    version="1.0.0",
+)
+
+# Variable para base de datos
 db = None
 
 
@@ -38,6 +68,7 @@ def configura_routers():
     api.include_router(param.router)
 
 
+# Método de configuración de base de datos
 async def configura_db():
     global db
     try:
@@ -51,19 +82,19 @@ async def configura_db():
         return None
 
 
-# Método de configuración general, que llama a los otros sub-métodos
-# de configuración
+# Método de configuración general, que llama a los otros sub-métodos de configuración
 async def configura():
     await configura_db()
     configura_routers()
 
 
+# Método para cerrar la conexión a la base de datos
 async def close_db_connection():
     global db
     if db is not None:
         db.close()
-        await db.wait_closed()
 
 
+# Manejadores de eventos
 api.add_event_handler("startup", configura)
 api.add_event_handler("shutdown", close_db_connection)

@@ -4,7 +4,7 @@ import fastapi
 router = fastapi.APIRouter()
 
 
-@router.get("/api/asignatura/")
+@router.get("/api/asignatura/", tags=["Asignaturas"])
 def login():
     value: str = "asignaturas"
     result = {

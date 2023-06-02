@@ -8,7 +8,7 @@ from models.principal import Dashboard
 router = fastapi.APIRouter()
 
 
-@router.get("/api/principal/{id_usuario}")
+@router.get("/api/principal/{id_usuario}", tags=["Principal"])
 async def principal(id_usuario: int):
     nc: str = None
     d: List[Dashboard] = []

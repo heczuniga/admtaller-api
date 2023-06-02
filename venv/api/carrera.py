@@ -6,7 +6,7 @@ from typing import List
 router = fastapi.APIRouter()
 
 
-@router.get("/api/carrera/lista/{id_usuario}", summary="Obtener la lista de carreras desde el sistema")
+@router.get("/api/carrera/lista/{id_usuario}", summary="Obtener la lista de carreras desde el sistema", tags=["Carreras"])
 async def carrera_lista(id_usuario: int):
     carrera: Carrera = None
     lista_carrera: List[Carrera] = []

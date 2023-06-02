@@ -13,7 +13,7 @@ from infrastructure.constants import Const
 router = fastapi.APIRouter()
 
 
-@router.get("/api/usuario/login/{login}", response_model=dict, name="Recupera el id de un usuario en base a su login")
+@router.get("/api/usuario/login/{login}", response_model=dict, name="Recupera el id de un usuario en base a su login", tags=["Usuarios"])
 async def usuario_login(login: str):
     db = await get_db_connection()
     if db is None:
@@ -47,9 +47,10 @@ async def usuario_login(login: str):
         db.close()
 
 
-@router.get("/api/usuario/lista/{id_usuario}", response_model=List[dict], name="Recupera un usuario en base a su Id")
+@router.get("/api/usuario/lista/{id_usuario}", response_model=List[dict], name="Recupera un usuario en base a su Id", tags=["Usuarios"])
 async def usuario_lista(id_usuario: int):
 
+    # Determinamos el perfil del usuario para determinar qué información puede ver
     perfil = await perfil_usuario(id_usuario)
     usuarios: List[Usuario] = []
     # Si todo está correcto, Retornamos la respuesta de la API
@@ -150,13 +151,10 @@ async def usuario_lista(id_usuario: int):
     return usuarios
 
 
-@router.get("/api/usuario/{id_usuario_editar}/{id_usuario}", response_model=dict, name="Recupera un usuario en base a su Id")
-def usuario_get(id_usuario_editar: int, id_usuario: int):
-    u: Usuario
-
-    if id_usuario_editar == -1:
-        u = {
-            "id_usuario": None,
+@router.get("/api/usuario/{id_usuario_get}/{id_usuario}", response_model=Usuario, name="Recupera un usuario en base a su Id", tags=["Usuarios"])
+async def usuario_get(id_usuario_get: int, id_usuario: int):
+    usuario: Usuario = {
+            "id_usuario": 0,
             "login": None,
             "hash_password": None,
             "primer_apellido": None,
@@ -168,73 +166,126 @@ def usuario_get(id_usuario_editar: int, id_usuario: int):
             "nom_perfil": None,
             "nom_carrera": None,
         }
-        return u
 
-    if id_usuario_editar == 18:
-        u = {
-            "id_usuario": 18,
-            "login": "de.reglas@profesor.duoc.cl",
-            "hash_password": "AHDGSJHGJAHDGJHGDJYTULKDLKLD",
-            "primer_apellido": "Reglas",
-            "segundo_apellido": "Villagra",
-            "nom": "Deyanira",
-            "nom_preferido": "Deyanira",
-            "cod_perfil": 2,
-            "cod_carrera": 1,
-            "nom_perfil": "Docente",
-            "nom_carrera": "Gastronomía"
+    # Determinamos el perfil del usuario conectado para determinar qué información puede ver
+    perfil = await perfil_usuario(id_usuario)
+    # Si todo está correcto, Retornamos la respuesta de la API
+    if not perfil:
+        return usuario
+    # Perfil docente no debe ver nada
+    if perfil.cod_perfil == Const.K_DOCENTE.value:
+        return usuario
+
+    db = await get_db_connection()
+    if db is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+
+    try:
+        query = "select u.id_usuario as id_usuario, \
+                    u.login as login, \
+                    null as hash_password, \
+                    u.primer_apellido as primer_apellido, \
+                    u.segundo_apellido as segundo_apellido, \
+                    u.nom as nom, \
+                    u.nom_preferido as nom_preferido, \
+                    u.cod_perfil as cod_perfil, \
+                    u.cod_carrera as cod_carrera, \
+                    p.nom_perfil as nom_perfil, \
+                    c.nom_carrera as nom_carrera \
+                from usuario u, \
+                    perfil p, \
+                    carrera c \
+                where u.cod_perfil = p.cod_perfil and \
+                    u.cod_carrera = c.cod_carrera and \
+                    id_usuario = %s"
+
+        values = (id_usuario_get)
+        async with db.cursor() as cursor:
+            await cursor.execute(query, values)
+            result = await cursor.fetchone()
+
+            usuario = Usuario(id_usuario=result[0],
+                            login=result[1],
+                            hash_password=None,
+                            primer_apellido=result[3],
+                            segundo_apellido=result[4],
+                            nom=result[5],
+                            nom_preferido=result[6],
+                            cod_perfil=result[7],
+                            cod_carrera=result[8],
+                            nom_perfil=result[9],
+                            nom_carrera=result[10])
+            return usuario
+
+    except aiomysql.Error as e:
+        error_message = str(e)
+        if "Connection" in error_message:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}")
+
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error en la base de datos")
+
+    finally:
+        db.close()
+
+
+@router.delete("/api/usuario/eliminar/{id_usuario_eliminar}/{id_usuario}", response_model=dict, name="Elimina un usuario", tags=["Usuarios"])
+async def usuario_eliminar(id_usuario_eliminar: int, id_usuario: int):
+
+    # Determinamos el perfil del usuario para determinar qué información puede ver
+    perfil = await perfil_usuario(id_usuario)
+    usuarios: List[Usuario] = []
+    # Si todo está correcto, Retornamos la respuesta de la API
+    if not perfil:
+        return usuarios
+    # Perfil docente no debe ver nada
+    if perfil.cod_perfil == Const.K_DOCENTE.value:
+        return {
+            "id_usuario": id_usuario_eliminar,
+            "eliminado": False,
+            "msg_error": "Usuario con perfil Docente no tiene acceso a eliminar"
         }
 
-        return u
-        
-    if id_usuario == 1:
-        u = {
-            "id_usuario": 3,
-            "login": "maalvarez@duoc.cl",
-            "hash_password": "AHDGSJHGJAHDGJHGDJYTULKDLKLD",
-            "primer_apellido": "Álvarez",
-            "segundo_apellido": "Román",
-            "nom": "Marco",
-            "nom_preferido": "Marco",
-            "cod_perfil": 2,
-            "cod_carrera": 1,
-            "nom_perfil": "Docente",
-            "nom_carrera": "Gastronomía"
-        }
-    if id_usuario == 2:
-        u = {
-            "id_usuario": 3,
-            "login": "maalvarez@duoc.cl",
-            "hash_password": "AHDGSJHGJAHDGJHGDJYTULKDLKLD",
-            "primer_apellido": "Álvarez",
-            "segundo_apellido": "Román",
-            "nom": "Marco",
-            "nom_preferido": "Marco",
-            "cod_perfil": 2,
-            "cod_carrera": 1,
-            "nom_perfil": "Docente",
-            "nom_carrera": "Gastronomía"
-        }
-    if id_usuario == 3:
-        u = {
-            "id_usuario": 0,
-            "login": None,
-            "hash_password": None,
-            "primer_apellido": None,
-            "segundo_apellido": None,
-            "nom": None,
-            "nom_preferido": None,
-            "cod_perfil": None,
-            "cod_carrera": None,
-            "nom_perfil": None,
-            "nom_carrera": None
-        }
+    db = await get_db_connection()
+    if db is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
-    return u
+    try:
+        query = "delete from usuario where id_usuario = %s"
 
+        values = (id_usuario_eliminar,)
+        async with db.cursor() as cursor:
+            await cursor.execute(query, values)
+            await db.commit()
 
-@router.delete("/api/usuario/eliminar/{id_usuario_eliminar}", response_model=dict, name="Elimina un usuario y retorna si hubo o no éxito")
-def usuario_eliminar(id_usuario_eliminar: int):
+            return {
+                "id_usuario": id_usuario_eliminar,
+                "eliminado": True,
+                "msg_error": "Usuario con perfil Docente no tiene acceso a eliminar"
+            }
+
+    except aiomysql.Error as e:
+        error_message = str(e)
+        # Controlamos de manera especial el error de integridad de datos
+        if "1451" in error_message:
+            return {
+                "id_usuario": id_usuario_eliminar,
+                "eliminado": False,
+                "msg_error": f"Usuario no se puede eliminar por integridad de datos con otras tablas"
+                }
+        if "Connection" in error_message:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}")
+
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error en la base de datos")
+
+    finally:
+        db.close()
+
     return {
         "id_usuario": id_usuario_eliminar,
         "eliminado": True
@@ -242,7 +293,7 @@ def usuario_eliminar(id_usuario_eliminar: int):
 
 
 
-@router.put("/api/usuario/{id_usuario_modificar}/", response_model=dict, name="Modificar un usuario")
+@router.put("/api/usuario/{id_usuario_modificar}/", response_model=dict, name="Modificar un usuario", tags=["Usuarios"])
 async def usuario_modificar(usuario: Usuario, id_usuario_modificar) -> Usuario:
 
     return {
@@ -260,7 +311,7 @@ async def usuario_modificar(usuario: Usuario, id_usuario_modificar) -> Usuario:
     }
 
 
-@router.post("/api/usuario", response_model=dict, name="Agregar un usuario")
+@router.post("/api/usuario", response_model=dict, name="Agregar un usuario", tags=["Usuarios"])
 async def usuario_insertar(usuario: Usuario) -> Usuario:
 
     return {

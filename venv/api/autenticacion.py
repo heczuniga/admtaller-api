@@ -1,3 +1,4 @@
+
 import fastapi
 from fastapi import HTTPException
 from fastapi import status
@@ -9,9 +10,10 @@ from models.autenticacion import CambioPassword
 
 router = fastapi.APIRouter()
 
-@router.post("/api/autenticacion/", response_model=Autenticacion, name="Autenticar un usuario y contraseña")
+@router.post("/api/autenticacion/", response_model=Autenticacion, name="Autenticar un usuario y contraseña", tags=["Autenticación"])
 async def autenticacion(autenticacion: Autenticacion) -> Autenticacion:
     db = await get_db_connection()
+
     if db is None:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
@@ -21,7 +23,7 @@ async def autenticacion(autenticacion: Autenticacion) -> Autenticacion:
                 from usuario \
                 where login = %s and \
                     hash_password = %s"
-        values = (autenticacion.login, autenticacion.password)
+        values = (autenticacion.login, autenticacion.hash_password)
 
         async with db.cursor() as cursor:
             await cursor.execute(query, values)
@@ -46,22 +48,18 @@ async def autenticacion(autenticacion: Autenticacion) -> Autenticacion:
     finally:
         db.close()
 
-    autenticacion.password = None
+    autenticacion.hash_password = None
 
     return autenticacion
 
 
-@router.put("/api/autenticacion/password", response_model=CambioPassword, name="Cambiar la contraseña del usuario conectado")
+@router.put("/api/autenticacion/password", response_model=CambioPassword, name="Cambiar la contraseña del usuario conectado", tags=["Autenticación"])
 async def autenticacion_password(cambio_password: CambioPassword):
     nueva_password: str = cambio_password.nueva_password
-    confirmacion_nueva_password: str = cambio_password.confirmacion_nueva_password
 
     # Anulamos las contraseñas para no devolverlas en la respuesta
     cambio_password.nueva_password = None
     cambio_password.confirmacion_nueva_password = None
-
-    #if nueva_password != confirmacion_nueva_password:
-    #    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Error en la confirmación de la contraseña")
 
     db = await get_db_connection()
     if db is None:

@@ -12,7 +12,7 @@ from database import get_db_connection
 router = fastapi.APIRouter()
 
 
-@router.get("/api/perfil/usuario/{id_usuario}", response_model=Perfil, summary="Obtener el perfil de un usuario coa través de su id")
+@router.get("/api/perfil/usuario/{id_usuario}", response_model=Perfil, summary="Obtener el perfil de un usuario coa través de su id", tags=["Perfiles"])
 async def perfil_usuario(id_usuario: int):
     db = await get_db_connection()
     if db is None:
@@ -50,7 +50,7 @@ async def perfil_usuario(id_usuario: int):
         db.close()
 
 
-@router.get("/api/perfil/nom_carrera/{id_usuario}", response_model=dict, summary="Obtener el nombre de la carrera asignada al usuario respectivo")
+@router.get("/api/perfil/nom_carrera/{id_usuario}", response_model=dict, summary="Obtener el nombre de la carrera asignada al usuario respectivo", tags=["Perfiles"])
 async def perfil_nom_carrera(id_usuario: int):
     db = await get_db_connection()
     if db is None:
@@ -90,7 +90,7 @@ async def perfil_nom_carrera(id_usuario: int):
         db.close()
 
 
-@router.get("/api/perfil/lista/{id_usuario}", response_model=List[dict], summary="Obtener la lista de perfiles desde el sistema")
+@router.get("/api/perfil/lista/{id_usuario}", response_model=List[dict], summary="Obtener la lista de perfiles desde el sistema", tags=["Perfiles"])
 async def perfil_lista(id_usuario: int):
     perfil: Perfil = None
     lista_perfil: List[Perfil] = []
