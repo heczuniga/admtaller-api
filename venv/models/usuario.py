@@ -5,7 +5,7 @@ from typing import Optional
 
 # Modelo que representa un usuario
 class Usuario(BaseModel):
-    id_usuario: int
+    id_usuario: Optional[int]
     login: str
     hash_password: Optional[str]
     primer_apellido: str

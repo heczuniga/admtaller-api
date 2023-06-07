@@ -74,18 +74,17 @@ async def usuario_lista(id_usuario: int):
                     u.cod_carrera as nom_carrera, \
                     p.nom_perfil as nom_perfil, \
                     c.nom_carrera as nom_carrera \
-                    from usuario u, \
-                        perfil p , \
-                        carrera c \
-                    where u.cod_carrera = c.cod_carrera and \
-                        u.cod_perfil = p.cod_perfil and \
-                        u.cod_carrera = (select us.cod_carrera \
-                                        from usuario us \
-                                        where us.id_usuario = %s) \
-                    order by u.cod_carrera asc, \
-                        u.primer_apellido asc, \
-                        u.segundo_apellido asc, \
-                        u.nom_preferido asc"
+                from usuario u \
+                join perfil p on u.cod_perfil = p.cod_perfil \
+                join carrera c on u.cod_carrera = c.cod_carrera \
+                where u.cod_carrera = (select us.cod_carrera \
+                                    from usuario us \
+                                    where us.id_usuario = %s) \
+                order by u.cod_carrera asc, \
+                    u.primer_apellido asc, \
+                    u.segundo_apellido asc, \
+                    u.nom_preferido asc"
+
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_TI.value:
         query = "select u.id_usuario as id_usuario, \
                     u.login as login, \
@@ -98,16 +97,14 @@ async def usuario_lista(id_usuario: int):
                     u.cod_carrera as nom_carrera, \
                     p.nom_perfil as nom_perfil, \
                     c.nom_carrera as nom_carrera \
-                    from usuario u, \
-                        perfil p , \
-                        carrera c \
-                    where u.cod_carrera = c.cod_carrera and \
-                        u.cod_perfil = p.cod_perfil and \
-                        u.id_usuario <> %s \
-                    order by u.cod_carrera asc, \
-                        u.primer_apellido asc, \
-                        u.segundo_apellido asc, \
-                        u.nom_preferido asc"
+                from usuario u \
+                join perfil p on u.cod_perfil = p.cod_perfil \
+                join carrera c on u.cod_carrera = c.cod_carrera \
+                where u.id_usuario <> %s \
+                order by u.cod_carrera asc, \
+                    u.primer_apellido asc, \
+                    u.segundo_apellido asc, \
+                    u.nom_preferido asc"
 
     db = await get_db_connection()
     if db is None:
@@ -155,17 +152,21 @@ async def usuario_lista(id_usuario: int):
 async def usuario_get(id_usuario_get: int, id_usuario: int):
     usuario: Usuario = {
             "id_usuario": 0,
-            "login": None,
-            "hash_password": None,
-            "primer_apellido": None,
-            "segundo_apellido": None,
-            "nom": None,
-            "nom_preferido": None,
-            "cod_perfil": None,
-            "cod_carrera": None,
-            "nom_perfil": None,
-            "nom_carrera": None,
+            "login": "",
+            "hash_password": "",
+            "primer_apellido": "",
+            "segundo_apellido": "",
+            "nom": "",
+            "nom_preferido": "",
+            "cod_perfil": 0,
+            "cod_carrera": 0,
+            "nom_perfil": "",
+            "nom_carrera": "",
         }
+
+    # Si id_usuario_get = 0 se asume que es un usuario nuevo
+    if id_usuario_get == 0:
+        return usuario
 
     # Determinamos el perfil del usuario conectado para determinar qué información puede ver
     perfil = await perfil_usuario(id_usuario)
@@ -192,17 +193,17 @@ async def usuario_get(id_usuario_get: int, id_usuario: int):
                     u.cod_carrera as cod_carrera, \
                     p.nom_perfil as nom_perfil, \
                     c.nom_carrera as nom_carrera \
-                from usuario u, \
-                    perfil p, \
-                    carrera c \
-                where u.cod_perfil = p.cod_perfil and \
-                    u.cod_carrera = c.cod_carrera and \
-                    id_usuario = %s"
+                from usuario u \
+                join perfil p on u.cod_perfil = p.cod_perfil \
+                join carrera c on u.cod_carrera = c.cod_carrera \
+                where id_usuario = %s"
 
         values = (id_usuario_get)
         async with db.cursor() as cursor:
             await cursor.execute(query, values)
             result = await cursor.fetchone()
+            if not result:
+                return usuario
 
             usuario = Usuario(id_usuario=result[0],
                             login=result[1],
@@ -273,7 +274,7 @@ async def usuario_eliminar(id_usuario_eliminar: int, id_usuario: int):
             return {
                 "id_usuario": id_usuario_eliminar,
                 "eliminado": False,
-                "msg_error": f"Usuario no se puede eliminar por integridad de datos con otras tablas"
+                "msg_error": "Usuario no se puede eliminar por integridad de datos con otras tablas"
                 }
         if "Connection" in error_message:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
@@ -293,37 +294,114 @@ async def usuario_eliminar(id_usuario_eliminar: int, id_usuario: int):
 
 
 
-@router.put("/api/usuario/{id_usuario_modificar}/", response_model=dict, name="Modificar un usuario", tags=["Usuarios"])
-async def usuario_modificar(usuario: Usuario, id_usuario_modificar) -> Usuario:
+@router.put("/api/usuario/{id_usuario}/", response_model=Usuario, name="Modificar un usuario", tags=["Usuarios"])
+async def usuario_modificar(usuario: Usuario, id_usuario) -> Usuario:
 
-    return {
-        "id_usuario": 3,
-        "login": "maalvarez@profesor.duoc.cl",
-        "hash_password": "AHDGSJHGJAHDGJHGDJYTULKDLKLD",
-        "primer_apellido": "Álvarez",
-        "segundo_apellido": "Román",
-        "nom": "Marco Aurelio",
-        "nom_preferido": "Marco",
-        "cod_perfil": 2,
-        "cod_carrera": 1,
-        "nom_perfil": "Docente",
-        "nom_carrera": "Gastronomía"
-    }
+    # Determinamos el perfil del usuario para determinar qué información puede ver
+    perfil = await perfil_usuario(id_usuario)
+    usuarios: List[Usuario] = []
+    # Si todo está correcto, Retornamos la respuesta de la API
+    if not perfil:
+        return usuarios
+    # Perfil docente no debe ver nada
+    if perfil.cod_perfil == Const.K_DOCENTE.value:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuario no tiene privilegios para ejecutar la acción")
+
+    db = await get_db_connection()
+    if db is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+
+    try:
+        query = "update usuario \
+                    set login = %s, \
+                        hash_password = %s, \
+                        primer_apellido = %s, \
+                        segundo_apellido = %s, \
+                        nom = %s, \
+                        nom_preferido = %s, \
+                        cod_perfil = %s, \
+                        cod_carrera = %s \
+                where id_usuario = %s"
+        values = (usuario.login,
+                  usuario.hash_password,
+                  usuario.primer_apellido,
+                  usuario.segundo_apellido,
+                  usuario.nom,
+                  usuario.nom_preferido,
+                  usuario.cod_perfil,
+                  usuario.cod_carrera,
+                  usuario.id_usuario)
+        async with db.cursor() as cursor:
+            await cursor.execute(query, values)
+
+    except aiomysql.Error as e:
+        error_message = str(e)
+        print(error_message)
+        if "Connection" in error_message:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al conectar a la base de datos. DBerror {error_message}")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}")
+
+    except Exception as e:
+        error_message = str(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error en la base de datos. DBError {error_message}")
+
+    finally:
+        db.close()
+
+    return usuario
 
 
-@router.post("/api/usuario", response_model=dict, name="Agregar un usuario", tags=["Usuarios"])
+@router.post("/api/usuario", response_model=Usuario, name="Agregar un usuario", tags=["Usuarios"])
 async def usuario_insertar(usuario: Usuario) -> Usuario:
 
-    return {
-        "id_usuario": 18,
-        "login": "de.reglas@profesor.duoc.cl",
-        "hash_password": "AHDGSJHGJAHDGJHGDJYTULKDLKLD",
-        "primer_apellido": "Reglas",
-        "segundo_apellido": "Villagra",
-        "nom": "Deyanira",
-        "nom_preferido": "Deyanira",
-        "cod_perfil": 2,
-        "cod_carrera": 1,
-        "nom_perfil": "Docente",
-        "nom_carrera": "Gastronomía"
-    }
+    db = await get_db_connection()
+    if db is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+
+    try:
+        query = "insert into usuario ( \
+                    login, \
+                    hash_password, \
+                    primer_apellido, \
+                    segundo_apellido, \
+                    nom, \
+                    nom_preferido, \
+                    cod_perfil, \
+                    cod_carrera) \
+                values (%s, \
+                    %s, \
+                    %s, \
+                    %s, \
+                    %s, \
+                    %s, \
+                    %s, \
+                    %s)"
+        values = (usuario.login,
+                    usuario.hash_password,
+                    usuario.primer_apellido,
+                    usuario.segundo_apellido,
+                    usuario.nom,
+                    usuario.nom_preferido,
+                    usuario.cod_perfil,
+                    usuario.cod_carrera)
+        async with db.cursor() as cursor:
+            await cursor.execute(query, values)
+            usuario.id_usuario = cursor.lastrowid
+
+    except aiomysql.Error as e:
+        error_message = str(e)
+        print(error_message)
+        if "Connection" in error_message:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al conectar a la base de datos. DBerror {error_message}")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}")
+
+    except Exception as e:
+        error_message = str(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error en la base de datos. DBError {error_message}")
+
+    finally:
+        db.close()
+
+    return usuario
