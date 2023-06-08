@@ -1,13 +1,13 @@
 
 import fastapi
 from models.perfil import Perfil
-from datetime import date
 from typing import List
 from fastapi import HTTPException
 from fastapi import status
 import aiomysql
 
 from database import get_db_connection
+from infrastructure.constants import Const
 
 router = fastapi.APIRouter()
 
@@ -90,23 +90,64 @@ async def perfil_nom_carrera(id_usuario: int):
         db.close()
 
 
-@router.get("/api/perfil/lista/{id_usuario}", response_model=List[dict], summary="Obtener la lista de perfiles desde el sistema", tags=["Perfiles"])
-async def perfil_lista(id_usuario: int):
+@router.get("/api/perfil/lista/{id_usuario}", response_model=List[Perfil], summary="Obtener la lista de perfiles desde el sistema", tags=["Perfiles"])
+async def perfil_lista(id_usuario: int) -> List[Perfil]:
+    perfiles: List[Perfil] = []
+
+    # Determinamos el perfil del usuario para determinar qué información puede ver
+    perfil = await perfil_usuario(id_usuario)
+    # Si todo está correcto, Retornamos la respuesta de la API
+    if not perfil:
+        return perfiles
+    # Perfil docente no debe ver nada
+    if perfil.cod_perfil == Const.K_DOCENTE.value:
+        return perfiles
+
+    db = await get_db_connection()
+    if db is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+
+    if perfil.cod_perfil == Const.K_ADMINISTRADOR_CARRERA.value:
+        query = "select p.cod_perfil as cod_perfil, \
+                    p.nom_perfil as nom_perfil, \
+                    p.descripcion as descripcion \
+                from perfil p \
+                where cod_perfil <> 0 \
+                order by p.cod_perfil asc"
+
+    if perfil.cod_perfil == Const.K_ADMINISTRADOR_TI.value:
+        query = "select p.cod_perfil as cod_perfil, \
+                    p.nom_perfil as nom_perfil, \
+                    p.descripcion as descripcion \
+                from perfil p \
+                order by p.cod_perfil asc"
+
+    try:
+        values = ()
+        async with db.cursor() as cursor:
+            await cursor.execute(query, values)
+            result = await cursor.fetchall()
+
+    except aiomysql.Error as e:
+        error_message = str(e)
+        print(error_message)
+        if "Connection" in error_message:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al conectar a la base de datos. DBerror {error_message}.")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}.")
+
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error en la base de datos. {e}")
+
+    finally:
+        db.close()
+
+    # Armamos el diccionario de salida
     perfil: Perfil = None
-    lista_perfil: List[Perfil] = []
+    for row in result:
+        perfil = Perfil(cod_perfil=row[0],
+                            nom_perfil=row[1],
+                            descripcion=row[2])
+        perfiles.append(perfil)
 
-    if id_usuario == 1:
-        perfil = Perfil(cod_perfil=0, nom_perfil="Administrador TI", descripcion="Administrador desde el punto de vista TI del sistema. En resumen, tiene acceso a todo. Es el alfa y el omega del sistema.")
-        lista_perfil.append(perfil)
-        perfil = Perfil(cod_perfil=1, nom_perfil="Administrador de carrera", descripcion="Administrador de entidades del sistema, usuarios y perfiles. También accede a reportes de gestión.")
-        lista_perfil.append(perfil)
-        perfil = Perfil(cod_perfil=2, nom_perfil="Docente", descripcion="Docentes de la carrera responsables de la ejecución del taller.")
-        lista_perfil.append(perfil)
-
-    if id_usuario == 2:
-        perfil = Perfil(cod_perfil=1, nom_perfil="Administrador de carrera", descripcion="Administrador de entidades del sistema, usuarios y perfiles. También accede a reportes de gestión.")
-        lista_perfil.append(perfil)
-        perfil = Perfil(cod_perfil=2, nom_perfil="Docente", descripcion="Docentes de la carrera responsables de la ejecución del taller.")
-        lista_perfil.append(perfil)
-
-    return lista_perfil
+    return perfiles
