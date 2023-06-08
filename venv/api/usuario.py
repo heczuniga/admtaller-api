@@ -295,7 +295,7 @@ async def usuario_eliminar(id_usuario_eliminar: int, id_usuario: int):
 
 
 @router.put("/api/usuario/{id_usuario}/", response_model=Usuario, name="Modificar un usuario", tags=["Usuarios"])
-async def usuario_modificar(usuario: Usuario, id_usuario) -> Usuario:
+async def usuario_modificar(usuario: Usuario, id_usuario: int) -> Usuario:
 
     # Determinamos el perfil del usuario para determinar qué información puede ver
     perfil = await perfil_usuario(id_usuario)
