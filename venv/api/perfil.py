@@ -31,7 +31,9 @@ async def perfil_usuario(id_usuario: int):
             await cursor.execute(query, values)
             result = await cursor.fetchone()
 
-        perfil: Perfil = None
+        if not result:
+            return None
+
         perfil = Perfil(cod_perfil=result[0], nom_perfil=result[1], descripcion=result[2])
         return perfil
 
@@ -43,8 +45,10 @@ async def perfil_usuario(id_usuario: int):
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}")
 
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error en la base de datos")
+    except Exception as e:
+        error_message = str(e)
+        print(error_message)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error en la base de datos. DBerror {error_message}")
 
     finally:
         db.close()
@@ -73,6 +77,44 @@ async def perfil_nom_carrera(id_usuario: int):
 
         return {
             "nom_carrera": nom_carrera,
+        }
+
+    except aiomysql.Error as e:
+        error_message = str(e)
+        print(error_message)
+        if "Connection" in error_message:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al conectar a la base de datos. DBerror {error_message}.")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}.")
+
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error en la base de datos. {e}")
+
+    finally:
+        db.close()
+
+
+@router.get("/api/perfil/cod_carrera/{id_usuario}", response_model=dict, summary="Obtener el código de la carrera asignada al usuario respectivo", tags=["Perfiles"])
+async def perfil_cod_carrera(id_usuario: int):
+    db = await get_db_connection()
+    if db is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+
+    try:
+        query = "select u.cod_carrera as cod_carrera \
+                from usuario u \
+                where u.id_usuario = %s"
+        values = (id_usuario)
+        async with db.cursor() as cursor:
+            await cursor.execute(query, values)
+            result = await cursor.fetchone()
+
+        cod_carrera: int = None
+        if result:
+            cod_carrera = result[0]
+
+        return {
+            "cod_carrera": cod_carrera,
         }
 
     except aiomysql.Error as e:

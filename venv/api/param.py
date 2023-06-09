@@ -6,7 +6,7 @@ import aiomysql
 from database import get_db_connection
 
 from models.param import Param
-from datetime import date
+import datetime
 from typing import List
 
 
@@ -101,12 +101,17 @@ async def param_get(cod_param: int):
 
 @router.get("/api/param/ano_academ/valor", response_model=dict, summary="Obtener el valor del parámetro año académico vigente", tags=["Parámetros"])
 async def param_ano_academ_valor():
-
+    ano_academ: str = str(datetime.datetime.now().year)
     K_ANOACADEMVIGENTE: int = 1
-    param: param = await param_get(K_ANOACADEMVIGENTE)
+
+    try:
+        param: param = await param_get(K_ANOACADEMVIGENTE)
+        ano_academ = param.valor
+    except Exception:
+        pass
 
     return {
-        "ano_academ": param.valor,
+        "ano_academ": ano_academ,
     }
 
 
