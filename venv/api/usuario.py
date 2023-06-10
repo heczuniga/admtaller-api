@@ -13,8 +13,8 @@ from infrastructure.constants import Const
 router = fastapi.APIRouter()
 
 
-@router.get("/api/usuario/login/{login}", response_model=dict, name="Recupera el id de un usuario en base a su login", tags=["Usuarios"])
-async def usuario_login(login: str):
+@router.get("/api/usuario/id_usuario/{login}", response_model=dict, summary="Recupera el ID de un usuario en base a su login", tags=["Usuarios"])
+async def usuario_id_usuario(login: str):
     db = await get_db_connection()
     if db is None:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
@@ -47,7 +47,7 @@ async def usuario_login(login: str):
         db.close()
 
 
-@router.get("/api/usuario/lista/{id_usuario}", response_model=List[dict], name="Recupera un usuario en base a su Id", tags=["Usuarios"])
+@router.get("/api/usuario/lista/{id_usuario}", response_model=List[dict], summary="Recupera un usuario en base a su ID", tags=["Usuarios"])
 async def usuario_lista(id_usuario: int):
 
     # Determinamos el perfil del usuario para determinar qué información puede ver
@@ -148,7 +148,7 @@ async def usuario_lista(id_usuario: int):
     return usuarios
 
 
-@router.get("/api/usuario/{id_usuario_get}/{id_usuario}", response_model=Usuario, name="Recupera un usuario en base a su Id", tags=["Usuarios"])
+@router.get("/api/usuario/{id_usuario_get}/{id_usuario}", response_model=Usuario, summary="Recupera un usuario en base a su ID", tags=["Usuarios"])
 async def usuario_get(id_usuario_get: int, id_usuario: int):
     usuario: Usuario = {
             "id_usuario": 0,
@@ -232,7 +232,7 @@ async def usuario_get(id_usuario_get: int, id_usuario: int):
         db.close()
 
 
-@router.delete("/api/usuario/eliminar/{id_usuario_eliminar}/{id_usuario}", response_model=dict, name="Elimina un usuario", tags=["Usuarios"])
+@router.delete("/api/usuario/eliminar/{id_usuario_eliminar}/{id_usuario}", response_model=dict, summary="Elimina un usuario", tags=["Usuarios"])
 async def usuario_eliminar(id_usuario_eliminar: int, id_usuario: int):
 
     # Determinamos el perfil del usuario para determinar qué información puede ver
@@ -294,7 +294,7 @@ async def usuario_eliminar(id_usuario_eliminar: int, id_usuario: int):
 
 
 
-@router.put("/api/usuario/{id_usuario}/", response_model=Usuario, name="Modificar un usuario", tags=["Usuarios"])
+@router.put("/api/usuario/{id_usuario}/", response_model=Usuario, summary="Modificar un usuario", tags=["Usuarios"])
 async def usuario_modificar(usuario: Usuario, id_usuario: int) -> Usuario:
 
     # Determinamos el perfil del usuario para determinar qué información puede ver
@@ -352,7 +352,7 @@ async def usuario_modificar(usuario: Usuario, id_usuario: int) -> Usuario:
     return usuario
 
 
-@router.post("/api/usuario", response_model=Usuario, name="Agregar un usuario", tags=["Usuarios"])
+@router.post("/api/usuario", response_model=Usuario, summary="Agregar un usuario", tags=["Usuarios"])
 async def usuario_insertar(usuario: Usuario) -> Usuario:
 
     db = await get_db_connection()

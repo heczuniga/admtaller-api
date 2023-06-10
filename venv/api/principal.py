@@ -16,7 +16,7 @@ from infrastructure.constants import Const
 
 router = fastapi.APIRouter()
 
-@router.get("/api/principal/{id_usuario}", tags=["Principal"])
+@router.get("/api/principal/{id_usuario}", summary="Obtiene los dashboards para presentar en la página principal", tags=["Principal"])
 async def principal(id_usuario: int):
     nom_carrera: str = None
     nom_ultima_carrera: str = None

@@ -4,10 +4,10 @@ import fastapi
 router = fastapi.APIRouter()
 
 
-@router.get("/api/reportes/", tags=["Reportes"])
-def login():
-    value: str = "reportes"
+@router.get("/api/reporte/", summary="ASD", tags=["Reportes"])
+def reporte():
+    value: str = "reporte"
     result = {
-        "reportes": value
+        "reporte": value
     }
     return result

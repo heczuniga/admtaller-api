@@ -115,7 +115,7 @@ async def param_ano_academ_valor():
     }
 
 
-@router.put("/api/param", response_model=Param, name="Modificar un parámetro del sistema", tags=["Parámetros"])
+@router.put("/api/param", response_model=Param, summary="Modificar un parámetro del sistema", tags=["Parámetros"])
 async def param_update(param: Param) -> Param:
 
     db = await get_db_connection()

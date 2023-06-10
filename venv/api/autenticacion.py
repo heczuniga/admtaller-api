@@ -10,7 +10,7 @@ from models.autenticacion import CambioPassword
 
 router = fastapi.APIRouter()
 
-@router.post("/api/autenticacion/", response_model=Autenticacion, name="Autenticar un usuario y contraseña", tags=["Autenticación"])
+@router.post("/api/autenticacion/", response_model=Autenticacion, summary="Autenticar un usuario y contraseña", tags=["Autenticación"])
 async def autenticacion(autenticacion: Autenticacion) -> Autenticacion:
     db = await get_db_connection()
 
@@ -53,7 +53,7 @@ async def autenticacion(autenticacion: Autenticacion) -> Autenticacion:
     return autenticacion
 
 
-@router.put("/api/autenticacion/password", response_model=CambioPassword, name="Cambiar la contraseña del usuario conectado", tags=["Autenticación"])
+@router.put("/api/autenticacion/password", response_model=CambioPassword, summary="Cambiar la contraseña del usuario conectado", tags=["Autenticación"])
 async def autenticacion_password(cambio_password: CambioPassword):
     nueva_password: str = cambio_password.nueva_password
 

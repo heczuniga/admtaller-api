@@ -23,9 +23,9 @@ api = fastapi.FastAPI(
     description="Catálogo de API's construidas para dar servicio al sistema web de administración de talleres DuocUC para las carreras de gastronomía y administración hotelera",
     openapi_tags=[
         {"name": "Asignaturas",
-         "description": "API's relacionadas con asignaturas, principalmente CRUD y funciones especiales"},
+         "description": "API's relacionadas con asignaturas"},
         {"name": "Autenticación",
-         "description": "API's relacionadas con la autenticación de usuario, autenticación, cambio de contraseña u otras"},
+         "description": "API's relacionadas con la autenticación de usuario, cambio de contraseña y otras"},
         {"name": "Carreras",
          "description": "API's relacionadas con la administración de carreras"},
         {"name": "Parámetros",
@@ -45,7 +45,7 @@ api = fastapi.FastAPI(
         {"name": "Usuarios",
          "description": "API's relacionadas con la administración de usuarios"},
     ],
-    version="1.0.0",
+    version="0.1.0",
 )
 
 # Variable para base de datos
