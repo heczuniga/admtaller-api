@@ -235,7 +235,7 @@ async def usuario_get(id_usuario_get: int, id_usuario: int):
 @router.delete("/api/usuario/eliminar/{id_usuario_eliminar}/{id_usuario}", response_model=dict, summary="Elimina un usuario", tags=["Usuarios"])
 async def usuario_eliminar(id_usuario_eliminar: int, id_usuario: int):
 
-    # Determinamos el perfil del usuario para determinar qué información puede ver
+    # Determinamos el perfil del usuario para determinar qué información puede borrar
     perfil = await perfil_usuario(id_usuario)
     usuarios: List[Usuario] = []
     # Si todo está correcto, Retornamos la respuesta de la API
@@ -264,7 +264,7 @@ async def usuario_eliminar(id_usuario_eliminar: int, id_usuario: int):
             return {
                 "id_usuario": id_usuario_eliminar,
                 "eliminado": True,
-                "msg_error": "Usuario con perfil Docente no tiene acceso a eliminar"
+                "msg_error": None
             }
 
     except aiomysql.Error as e:
@@ -291,7 +291,6 @@ async def usuario_eliminar(id_usuario_eliminar: int, id_usuario: int):
         "id_usuario": id_usuario_eliminar,
         "eliminado": True
     }
-
 
 
 @router.put("/api/usuario/{id_usuario}/", response_model=Usuario, summary="Modificar un usuario", tags=["Usuarios"])
