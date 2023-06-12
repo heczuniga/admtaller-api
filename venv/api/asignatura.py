@@ -176,7 +176,7 @@ async def asignatura_eliminar(sigla: str, id_usuario: int):
     }
 
 
-@router.get("/api/asignatura/{sigla}/{id_usuario}", response_model=Asignatura, summary="Recupera ua asignatura en base a su sigla", tags=["Asignaturas"])
+@router.get("/api/asignatura/{sigla}/{id_usuario}", response_model=Asignatura, summary="Recupera una asignatura en base a su sigla", tags=["Asignaturas"])
 async def usuario_get(sigla: str, id_usuario: int):
     asignatura: Asignatura = {
             "sigla": "None",
