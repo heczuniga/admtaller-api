@@ -15,6 +15,7 @@ from api import registro
 from api import taller
 from api import carrera
 from api import param
+from api import agrupador
 from database import get_db_connection
 
 # Instanciamos la aplicación
@@ -24,6 +25,8 @@ api = fastapi.FastAPI(
     openapi_tags=[
         {"name": "Asignaturas",
          "description": "API's relacionadas con asignaturas"},
+        {"name": "Agrupadores",
+         "description": "API's relacionadas con los agrupadores de los productos de un taller"},
         {"name": "Autenticación",
          "description": "API's relacionadas con la autenticación de usuario, cambio de contraseña y otras"},
         {"name": "Carreras",
@@ -66,6 +69,7 @@ def configura_routers():
     api.include_router(taller.router)
     api.include_router(carrera.router)
     api.include_router(param.router)
+    api.include_router(agrupador.router)
 
 
 # Método de configuración de base de datos
