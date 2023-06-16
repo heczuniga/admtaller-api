@@ -289,7 +289,8 @@ async def taller_producto_lista(id_taller: int):
         join agrupador a on ct.cod_agrupador = a.cod_agrupador \
         join unidad_medida um on um.cod_unidad_medida = p.cod_unidad_medida \
         where ct.id_taller = %s \
-        order by cp.cod_categ_producto asc, \
+        order by ct.cod_agrupador asc, \
+            cp.cod_categ_producto asc, \
             p.nom_producto asc"
 
     db = await get_db_connection()
