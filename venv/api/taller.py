@@ -93,7 +93,7 @@ async def asignatura_eliminar(id_taller: int):
             return {
                 "id_taller": id_taller,
                 "eliminado": False,
-                "msg_error": "Taller no se puede eliminar por integridad de datos con otras tablas"
+                "msg_error": "Taller no se puede eliminar por integridad de datos"
                 }
         if "Connection" in error_message:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
@@ -438,7 +438,7 @@ async def producto_taller_eliminar(id_taller: int, id_producto: int, cod_agrupad
             return {
                 "id_taller": id_taller,
                 "eliminado": False,
-                "msg_error": "Taller no se puede eliminar por integridad de datos con otras tablas"
+                "msg_error": "Taller no se puede eliminar por integridad de datos"
                 }
         if "Connection" in error_message:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")

@@ -12,7 +12,7 @@ from infrastructure.constants import Const
 router = fastapi.APIRouter()
 
 
-@router.get("/api/perfil/usuario/{id_usuario}", response_model=Perfil, summary="Obtener el perfil de un usuario coa través de su id", tags=["Perfiles"])
+@router.get("/api/perfil/usuario/{id_usuario}", response_model=Perfil, summary="Obtener el perfil de un usuario a través de su id", tags=["Perfiles"])
 async def perfil_usuario(id_usuario: int):
     db = await get_db_connection()
     if db is None:

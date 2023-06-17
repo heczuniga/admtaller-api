@@ -6,6 +6,7 @@ import aiomysql
 
 from typing import List
 from models.programacion_asignatura import ProgramacionAsignatura
+from models.usuario import Usuario
 from database import get_db_connection
 from api.perfil import perfil_usuario
 from infrastructure.constants import Const
@@ -90,7 +91,8 @@ async def programacion_asignatura_lista(ano_academ: int, id_usuario: int):
                 join asign a on pa.sigla = a.sigla \
                 join carrera c on a.cod_carrera = c.cod_carrera \
             where pa.ano_academ = %s \
-            order by pa.cod_periodo_academ asc, \
+            order by a.cod_carrera asc, \
+                pa.cod_periodo_academ asc, \
                 a.cod_carrera asc, \
                 pa.sigla asc, \
                 pa.seccion asc"
@@ -135,3 +137,74 @@ async def programacion_asignatura_lista(ano_academ: int, id_usuario: int):
         programaciones.append(programacion)
 
     return programaciones
+
+
+@router.delete("/api/programacion/eliminar/ano_academ/{ano_academ}/cod_periodo_academ/{cod_periodo_academ}/sigla/{sigla}/seccion/{seccion}/{id_usuario}", response_model=dict, summary="Elimina la programación de una sección específica de una asignatura para un año y período académico", tags=["Programación"])
+async def asignatura_eliminar(ano_academ: int, cod_periodo_academ: int, sigla: str, seccion: int, id_usuario: int):
+
+    # Determinamos el perfil del usuario para determinar qué información puede borrar
+    perfil = await perfil_usuario(id_usuario)
+    usuarios: List[Usuario] = []
+    # Si todo está correcto, Retornamos la respuesta de la API
+    if not perfil:
+        return usuarios
+    # Perfil docente no debe ver nada
+    if perfil.cod_perfil == Const.K_DOCENTE.value:
+        return {
+            "sigla": sigla,
+            "eliminado": False,
+            "msg_error": "Usuario con perfil Docente no tiene acceso a eliminar"
+        }
+
+    db = await get_db_connection()
+    if db is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+
+    try:
+        query = "delete from prog_asign where ano_academ = %s and cod_periodo_academ = %s and sigla = %s and seccion = %s"
+
+        values = (ano_academ, cod_periodo_academ, sigla, seccion)
+        async with db.cursor() as cursor:
+            await cursor.execute(query, values)
+            await db.commit()
+
+            return {
+                "ano_academ": ano_academ,
+                "cod_periodo_academ": cod_periodo_academ,
+                "sigla": sigla,
+                "seccion": seccion,
+                "eliminado": True,
+                "msg_error": None
+            }
+
+    except aiomysql.Error as e:
+        error_message = str(e)
+        # Controlamos de manera especial el error de integridad de datos
+        if "1451" in error_message:
+            return {
+                "ano_academ": ano_academ,
+                "cod_periodo_academ": cod_periodo_academ,
+                "sigla": sigla,
+                "seccion": seccion,
+                "eliminado": False,
+                "msg_error": "Programación de asignatura no se puede eliminar por integridad de datos"
+                }
+        if "Connection" in error_message:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}")
+
+    except Exception as e:
+        error_message = str(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error en la base de datos. DBerror {error_message}")
+
+    finally:
+        db.close()
+
+    return {
+        "ano_academ": ano_academ,
+        "cod_periodo_academ": cod_periodo_academ,
+        "sigla": sigla,
+        "seccion": seccion,
+        "eliminado": True
+    }
