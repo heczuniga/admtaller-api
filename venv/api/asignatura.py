@@ -30,18 +30,19 @@ async def asignatura_lista(id_usuario: int):
     # Dependiendo del perfil, filtramos por carrera o no
     query: str = None
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_CARRERA.value:
-        query = "select a.sigla as sigla, \
-                    a.nom_asign as nom_asign, \
-                    a.nom_asign_abrev as nom_asign_abrev, \
-                    a.cod_carrera as cod_carrera, \
-                    c.nom_carrera as nom_carrera \
-                from asign a \
-                join carrera c on a.cod_carrera = c.cod_carrera \
-                where a.cod_carrera = (select us.cod_carrera \
-                                    from usuario us \
-                                    where us.id_usuario = %s) \
-                order by c.cod_carrera asc, \
-                    a.sigla"
+        query = " \
+            select a.sigla as sigla, \
+                a.nom_asign as nom_asign, \
+                a.nom_asign_abrev as nom_asign_abrev, \
+                a.cod_carrera as cod_carrera, \
+                c.nom_carrera as nom_carrera \
+            from asign a \
+            join carrera c on a.cod_carrera = c.cod_carrera \
+            where a.cod_carrera = (select us.cod_carrera \
+                                from usuario us \
+                                where us.id_usuario = %s) \
+            order by c.cod_carrera asc, \
+                a.sigla"
 
         db = await get_db_connection()
         if db is None:
@@ -67,15 +68,16 @@ async def asignatura_lista(id_usuario: int):
             db.close()
 
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_TI.value:
-        query = "select a.sigla as sigla, \
-                    a.nom_asign as nom_asign, \
-                    a.nom_asign_abrev as nom_asign_abrev, \
-                    a.cod_carrera as cod_carrera, \
-                    c.nom_carrera as nom_carrera \
-                from asign a \
-                join carrera c on a.cod_carrera = c.cod_carrera \
-                order by c.cod_carrera asc, \
-                    a.sigla"
+        query = " \
+            select a.sigla as sigla, \
+                a.nom_asign as nom_asign, \
+                a.nom_asign_abrev as nom_asign_abrev, \
+                a.cod_carrera as cod_carrera, \
+                c.nom_carrera as nom_carrera \
+            from asign a \
+            join carrera c on a.cod_carrera = c.cod_carrera \
+            order by c.cod_carrera asc, \
+                a.sigla"
 
         db = await get_db_connection()
         if db is None:
@@ -105,10 +107,10 @@ async def asignatura_lista(id_usuario: int):
     asignatura: Asignatura = None
     for row in result:
         asignatura = Asignatura(sigla=row[0],
-                            nom_asignatura=row[1],
-                            nom_asignatura_abrev=row[2],
-                            cod_carrera=row[3],
-                            nom_carrera=row[4])
+                                nom_asignatura=row[1],
+                                nom_asignatura_abrev=row[2],
+                                cod_carrera=row[3],
+                                nom_carrera=row[4])
         asignaturas.append(asignatura)
 
     return asignaturas
@@ -204,14 +206,15 @@ async def usuario_get(sigla: str, id_usuario: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "select a.sigla as sigla, \
-                    a.nom_asign as nom_asign, \
-                    a.nom_asign_abrev as nom_asign_abrev, \
-                    a.cod_carrera as cod_carrera, \
-                    c.nom_carrera as nom_carrera \
-                from asign a \
-                join carrera c on a.cod_carrera = c.cod_carrera \
-                where sigla = %s"
+        query = " \
+            select a.sigla as sigla, \
+                a.nom_asign as nom_asign, \
+                a.nom_asign_abrev as nom_asign_abrev, \
+                a.cod_carrera as cod_carrera, \
+                c.nom_carrera as nom_carrera \
+            from asign a \
+            join carrera c on a.cod_carrera = c.cod_carrera \
+            where sigla = %s"
 
         values = (sigla)
         async with db.cursor() as cursor:
@@ -221,10 +224,10 @@ async def usuario_get(sigla: str, id_usuario: int):
                 return asignatura
 
             asignatura = Asignatura(sigla=result[0],
-                            nom_asignatura=result[1],
-                            nom_asignatura_abrev=result[2],
-                            cod_carrera=result[3],
-                            nom_carrera=result[4],)
+                                    nom_asignatura=result[1],
+                                    nom_asignatura_abrev=result[2],
+                                    cod_carrera=result[3],
+                                    nom_carrera=result[4],)
             return asignatura
 
     except aiomysql.Error as e:
@@ -250,11 +253,12 @@ async def asignatura_update(asignatura: Asignatura) -> Asignatura:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "update asign \
-                    set nom_asign = %s, \
-                        nom_asign_abrev = %s, \
-                        cod_carrera = %s \
-                where sigla = %s"
+        query = " \
+            update asign \
+            set nom_asign = %s, \
+                nom_asign_abrev = %s, \
+                cod_carrera = %s \
+            where sigla = %s"
         values = (asignatura.nom_asignatura,
                   asignatura.nom_asignatura_abrev,
                   asignatura.cod_carrera,
@@ -298,9 +302,9 @@ async def asignatura_insertar(asignatura: Asignatura) -> Asignatura:
                     %s, \
                     %s)"
         values = (asignatura.sigla,
-                    asignatura.nom_asignatura,
-                    asignatura.nom_asignatura_abrev,
-                    asignatura.cod_carrera)
+                  asignatura.nom_asignatura,
+                  asignatura.nom_asignatura_abrev,
+                  asignatura.cod_carrera)
         async with db.cursor() as cursor:
             await cursor.execute(query, values)
 

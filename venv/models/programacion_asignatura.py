@@ -10,8 +10,8 @@ class ProgramacionAsignatura(BaseModel):
     cod_periodo_academ: int
     sigla: str
     seccion: int
-    cod_carrera: int
-    nom_carrera: str
-    nom_asignatura: str
-    nom_periodo_academ: str
+    cod_carrera: Optional[int]
+    nom_carrera: Optional[str]
+    nom_asignatura: Optional[str]
+    nom_periodo_academ: Optional[str]
 

@@ -141,15 +141,16 @@ async def taller_get(id_taller: int, id_usuario: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "select t.id_taller as id_taller, \
-                    t.titulo_preparacion as titulo_preparacion, \
-                    t.detalle_preparacion as detalle_preparacion, \
-                    t.semana as semana, \
-                    t.sigla as sigla, \
-                    a.nom_asign as nom_asign \
-                from taller t \
-                join asign a on t.sigla = a.sigla \
-                where t.id_taller = %s"
+        query = " \
+            select t.id_taller as id_taller, \
+                t.titulo_preparacion as titulo_preparacion, \
+                t.detalle_preparacion as detalle_preparacion, \
+                t.semana as semana, \
+                t.sigla as sigla, \
+                a.nom_asign as nom_asign \
+            from taller t \
+            join asign a on t.sigla = a.sigla \
+            where t.id_taller = %s"
 
         values = (id_taller)
         async with db.cursor() as cursor:
@@ -189,12 +190,13 @@ async def taller_update(taller: Taller) -> Taller:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "update taller \
-                    set titulo_preparacion = %s, \
-                        detalle_preparacion = %s, \
-                        semana = %s, \
-                        sigla = %s \
-                where id_taller = %s"
+        query = " \
+            update taller \
+                set titulo_preparacion = %s, \
+                    detalle_preparacion = %s, \
+                    semana = %s, \
+                    sigla = %s \
+            where id_taller = %s"
         values = (taller.titulo_preparacion,
                   taller.detalle_preparacion,
                   taller.semana,
@@ -229,8 +231,8 @@ async def taller_insertar(taller: Taller) -> Taller:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = \
-            "insert into taller ( \
+        query = " \
+            insert into taller ( \
                 titulo_preparacion, \
                 detalle_preparacion, \
                 semana, \
