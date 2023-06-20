@@ -16,6 +16,9 @@ from api import taller
 from api import carrera
 from api import param
 from api import agrupador
+from api import unidad_medida
+from api import categoria_producto
+
 from database import get_db_connection
 
 # Instanciamos la aplicación
@@ -31,6 +34,8 @@ api = fastapi.FastAPI(
          "description": "API's relacionadas con la autenticación de usuario, cambio de contraseña y otras"},
         {"name": "Carreras",
          "description": "API's relacionadas con la administración de carreras"},
+        {"name": "Categorías de productos",
+         "description": "API's relacionadas con las categorías de los productos"},
         {"name": "Parámetros",
          "description": "API's relacionadas con los parámetros del sistema"},
         {"name": "Perfiles",
@@ -45,6 +50,8 @@ api = fastapi.FastAPI(
          "description": "API's relacionadas con los reportes de gestión"},
         {"name": "Talleres",
          "description": "API's relacionadas con la administración de los talleres"},
+        {"name": "Unidades de medida",
+         "description": "API's relacionadas con las unidades de medida disponibles en el sistema"},
         {"name": "Usuarios",
          "description": "API's relacionadas con la administración de usuarios"},
     ],
@@ -70,9 +77,11 @@ def configura_routers():
     api.include_router(carrera.router)
     api.include_router(param.router)
     api.include_router(agrupador.router)
+    api.include_router(unidad_medida.router)
+    api.include_router(categoria_producto.router)
 
+# Método de configuración de base de datos    api.include_router(agrupador.router)
 
-# Método de configuración de base de datos
 async def configura_db():
     global db
     try:
