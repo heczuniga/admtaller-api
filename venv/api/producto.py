@@ -148,7 +148,7 @@ async def producto_get(id_producto: int, id_usuario: int):
             "nom_producto": "",
             "precio": 0,
             "cod_unidad_medida": 0,
-            "cod_categ_producto": "",
+            "cod_categ_producto": 0,
             "nom_unidad_medida": "",
             "nom_categ_producto": "",
         }
@@ -213,3 +213,98 @@ async def producto_get(id_producto: int, id_usuario: int):
 
     finally:
         db.close()
+
+
+@router.put("/api/producto/{id_usuario}/", response_model=Producto, summary="Modificar un producto", tags=["Productos"])
+async def usuario_modificar(producto: Producto, id_usuario: int) -> Producto:
+
+    # Determinamos el perfil del usuario para determinar qué información puede ver
+    perfil = await perfil_usuario(id_usuario)
+    usuarios: List[Usuario] = []
+    # Si todo está correcto, Retornamos la respuesta de la API
+    if not perfil:
+        return usuarios
+    # Perfil docente no debe ver nada
+    if perfil.cod_perfil == Const.K_DOCENTE.value:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuario no tiene privilegios para ejecutar la acción")
+
+    db = await get_db_connection()
+    if db is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+
+    try:
+        query = " \
+            update producto \
+                set nom_producto = %s, \
+                    precio = %s, \
+                    cod_unidad_medida = %s, \
+                    cod_categ_producto = %s \
+            where id_producto = %s"
+        values = (producto.nom_producto,
+                  producto.precio,
+                  producto.cod_unidad_medida,
+                  producto.cod_categ_producto,
+                  producto.id_producto)
+        async with db.cursor() as cursor:
+            await cursor.execute(query, values)
+
+    except aiomysql.Error as e:
+        error_message = str(e)
+        print(error_message)
+        if "Connection" in error_message:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al conectar a la base de datos. DBerror {error_message}")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}")
+
+    except Exception as e:
+        error_message = str(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error en la base de datos. DBError {error_message}")
+
+    finally:
+        db.close()
+
+    return producto
+
+
+@router.post("/api/producto", response_model=Producto, summary="Agregar un producto", tags=["Productos"])
+async def usuario_insertar(producto: Producto) -> Producto:
+
+    db = await get_db_connection()
+    if db is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
+
+    try:
+        query = " \
+            insert into producto ( \
+                nom_producto, \
+                precio, \
+                cod_unidad_medida, \
+                cod_categ_producto) \
+            values (%s, \
+                %s, \
+                %s, \
+                %s)"
+        values = (producto.nom_producto,
+                  producto.precio,
+                  producto.cod_unidad_medida,
+                  producto.cod_categ_producto)
+        async with db.cursor() as cursor:
+            await cursor.execute(query, values)
+            producto.id_producto = cursor.lastrowid
+
+    except aiomysql.Error as e:
+        error_message = str(e)
+        print(error_message)
+        if "Connection" in error_message:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al conectar a la base de datos. DBerror {error_message}")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error en la consulta a la base de datos. DBerror {error_message}")
+
+    except Exception as e:
+        error_message = str(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error en la base de datos. DBError {error_message}")
+
+    finally:
+        db.close()
+
+    return producto

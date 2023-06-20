@@ -6,7 +6,7 @@ from typing import Optional
 # Modelo que representa un producto
 class Producto(BaseModel):
 
-    id_producto: int
+    id_producto: Optional[int]
     nom_producto: str
     precio: int
     cod_unidad_medida: int

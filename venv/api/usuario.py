@@ -47,7 +47,7 @@ async def usuario_id_usuario(login: str):
         db.close()
 
 
-@router.get("/api/usuario/lista/{id_usuario}", response_model=List[dict], summary="Recupera un usuario en base a su ID", tags=["Usuarios"])
+@router.get("/api/usuario/lista/{id_usuario}", response_model=List[dict], summary="Recupera la lista de usuarios del sistema de acuerdo al usuario que consulta", tags=["Usuarios"])
 async def usuario_lista(id_usuario: int):
 
     # Determinamos el perfil del usuario para determinar qué información puede ver
@@ -133,16 +133,16 @@ async def usuario_lista(id_usuario: int):
     usuario: Usuario = None
     for row in result:
         usuario = Usuario(id_usuario=row[0],
-                            login=row[1],
-                            hash_password=None,
-                            primer_apellido=row[3],
-                            segundo_apellido=row[4],
-                            nom=row[5],
-                            nom_preferido=row[6],
-                            cod_perfil=row[7],
-                            cod_carrera=row[8],
-                            nom_perfil=row[9],
-                            nom_carrera=row[10])
+                          login=row[1],
+                          hash_password=None,
+                          primer_apellido=row[3],
+                          segundo_apellido=row[4],
+                          nom=row[5],
+                          nom_preferido=row[6],
+                          cod_perfil=row[7],
+                          cod_carrera=row[8],
+                          nom_perfil=row[9],
+                          nom_carrera=row[10])
         usuarios.append(usuario)
 
     return usuarios
