@@ -19,13 +19,14 @@ async def perfil_usuario(id_usuario: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "select p.cod_perfil as cod_perfil, \
-                    p.nom_perfil as nom_perfil, \
-                    p.descripcion as descripcion \
-                from perfil p, \
-                    usuario u \
-                where u.cod_perfil = p.cod_perfil and \
-                    u.id_usuario = %s"
+        query = " \
+            select p.cod_perfil as cod_perfil, \
+                p.nom_perfil as nom_perfil, \
+                p.descripcion as descripcion \
+            from perfil p, \
+                usuario u \
+            where u.cod_perfil = p.cod_perfil and \
+                u.id_usuario = %s"
         values = (id_usuario)
         async with db.cursor() as cursor:
             await cursor.execute(query, values)
@@ -34,7 +35,9 @@ async def perfil_usuario(id_usuario: int):
         if not result:
             return None
 
-        perfil = Perfil(cod_perfil=result[0], nom_perfil=result[1], descripcion=result[2])
+        perfil = Perfil(cod_perfil=result[0],
+                        nom_perfil=result[1],
+                        descripcion=result[2])
         return perfil
 
     except aiomysql.Error as e:
@@ -61,11 +64,12 @@ async def perfil_nom_carrera(id_usuario: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "select c.nom_carrera as nom_carrera \
-                from carrera c, \
-                    usuario u \
-                where u.cod_carrera = c.cod_carrera and \
-                    u.id_usuario = %s"
+        query = " \
+            select c.nom_carrera as nom_carrera \
+            from carrera c, \
+                usuario u \
+            where u.cod_carrera = c.cod_carrera and \
+                u.id_usuario = %s"
         values = (id_usuario)
         async with db.cursor() as cursor:
             await cursor.execute(query, values)
@@ -101,9 +105,10 @@ async def perfil_cod_carrera(id_usuario: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "select u.cod_carrera as cod_carrera \
-                from usuario u \
-                where u.id_usuario = %s"
+        query = " \
+            select u.cod_carrera as cod_carrera \
+            from usuario u \
+            where u.id_usuario = %s"
         values = (id_usuario)
         async with db.cursor() as cursor:
             await cursor.execute(query, values)
@@ -150,19 +155,21 @@ async def perfil_lista(id_usuario: int) -> List[Perfil]:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_CARRERA.value:
-        query = "select p.cod_perfil as cod_perfil, \
-                    p.nom_perfil as nom_perfil, \
-                    p.descripcion as descripcion \
-                from perfil p \
-                where cod_perfil <> 0 \
-                order by p.cod_perfil asc"
+        query = " \
+            select p.cod_perfil as cod_perfil, \
+                p.nom_perfil as nom_perfil, \
+                p.descripcion as descripcion \
+            from perfil p \
+            where cod_perfil <> 0 \
+            order by p.cod_perfil asc"
 
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_TI.value:
-        query = "select p.cod_perfil as cod_perfil, \
-                    p.nom_perfil as nom_perfil, \
-                    p.descripcion as descripcion \
-                from perfil p \
-                order by p.cod_perfil asc"
+        query = " \
+            select p.cod_perfil as cod_perfil, \
+                p.nom_perfil as nom_perfil, \
+                p.descripcion as descripcion \
+            from perfil p \
+            order by p.cod_perfil asc"
 
     try:
         values = ()
@@ -188,8 +195,8 @@ async def perfil_lista(id_usuario: int) -> List[Perfil]:
     perfil: Perfil = None
     for row in result:
         perfil = Perfil(cod_perfil=row[0],
-                            nom_perfil=row[1],
-                            descripcion=row[2])
+                        nom_perfil=row[1],
+                        descripcion=row[2])
         perfiles.append(perfil)
 
     return perfiles

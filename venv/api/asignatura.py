@@ -23,13 +23,10 @@ async def asignatura_lista(id_usuario: int):
     # Si todo está correcto, Retornamos la respuesta de la API
     if not perfil:
         return asignaturas
-    # Perfil docente no debe ver nada
-    if perfil.cod_perfil == Const.K_DOCENTE.value:
-        return asignaturas
 
     # Dependiendo del perfil, filtramos por carrera o no
     query: str = None
-    if perfil.cod_perfil == Const.K_ADMINISTRADOR_CARRERA.value:
+    if perfil.cod_perfil in (Const.K_ADMINISTRADOR_CARRERA.value, Const.K_DOCENTE.value):
         query = " \
             select a.sigla as sigla, \
                 a.nom_asign as nom_asign, \
@@ -196,9 +193,6 @@ async def usuario_get(sigla: str, id_usuario: int):
     perfil = await perfil_usuario(id_usuario)
     # Si todo está correcto, Retornamos la respuesta de la API
     if not perfil:
-        return asignatura
-    # Perfil docente no debe ver nada
-    if perfil.cod_perfil == Const.K_DOCENTE.value:
         return asignatura
 
     db = await get_db_connection()

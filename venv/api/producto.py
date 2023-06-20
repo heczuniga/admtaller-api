@@ -122,7 +122,7 @@ async def asignatura_eliminar(id_producto: int, id_usuario: int):
                 "id_producto": id_producto,
                 "eliminado": False,
                 "msg_error": "Producto no se puede eliminar por integridad de datos"
-                }
+            }
         if "Connection" in error_message:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
         else:
@@ -144,14 +144,14 @@ async def asignatura_eliminar(id_producto: int, id_usuario: int):
 @router.get("/api/producto/{id_producto}/{id_usuario}", response_model=Producto, summary="Recupera un producto en base a su Id", tags=["Productos"])
 async def producto_get(id_producto: int, id_usuario: int):
     producto: Producto = {
-            "id_producto": 0,
-            "nom_producto": "",
-            "precio": 0,
-            "cod_unidad_medida": 0,
-            "cod_categ_producto": 0,
-            "nom_unidad_medida": "",
-            "nom_categ_producto": "",
-        }
+        "id_producto": 0,
+        "nom_producto": "",
+        "precio": 0,
+        "cod_unidad_medida": 0,
+        "cod_categ_producto": 0,
+        "nom_unidad_medida": "",
+        "nom_categ_producto": "",
+    }
 
     # Si id_producto = 0 se asume que es nuevo
     if id_producto == 0:

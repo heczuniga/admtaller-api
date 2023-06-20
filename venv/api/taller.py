@@ -1,5 +1,4 @@
 
-
 import fastapi
 from fastapi import HTTPException
 from fastapi import status
@@ -10,7 +9,6 @@ from models.taller import Taller
 from models.producto_taller import ProductoTaller
 from database import get_db_connection
 from api.perfil import perfil_usuario
-from infrastructure.constants import Const
 
 
 router = fastapi.APIRouter()
@@ -56,10 +54,10 @@ async def taller_lista(sigla: str):
     talleres: List[Taller] = []
     for row in result:
         taller = Taller(id_taller=row[0],
-                            titulo_preparacion=row[1],
-                            detalle_preparacion=row[2],
-                            semana=row[3],
-                            sigla=row[4])
+                        titulo_preparacion=row[1],
+                        detalle_preparacion=row[2],
+                        semana=row[3],
+                        sigla=row[4])
         talleres.append(taller)
 
     return talleres
@@ -94,7 +92,7 @@ async def asignatura_eliminar(id_taller: int):
                 "id_taller": id_taller,
                 "eliminado": False,
                 "msg_error": "Taller no se puede eliminar por integridad de datos"
-                }
+            }
         if "Connection" in error_message:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
         else:
@@ -116,12 +114,12 @@ async def asignatura_eliminar(id_taller: int):
 @router.get("/api/taller/{id_taller}/{id_usuario}", response_model=Taller, summary="Recupera un taller en base a su ID", tags=["Talleres"])
 async def taller_get(id_taller: int, id_usuario: int):
     taller: Taller = {
-            "id_taller": 0,
-            "titulo_preparacion": "",
-            "detalle_preparacion": "",
-            "semana": 0,
-            "sigla": "",
-        }
+        "id_taller": 0,
+        "titulo_preparacion": "",
+        "detalle_preparacion": "",
+        "semana": 0,
+        "sigla": "",
+    }
 
     # Si id_taller = 0 se asume que es un usuario nuevo
     if id_taller == 0:
@@ -131,9 +129,6 @@ async def taller_get(id_taller: int, id_usuario: int):
     perfil = await perfil_usuario(id_usuario)
     # Si todo está correcto, Retornamos la respuesta de la API
     if not perfil:
-        return taller
-    # Perfil docente no debe ver nada
-    if perfil.cod_perfil == Const.K_DOCENTE.value:
         return taller
 
     db = await get_db_connection()
@@ -243,9 +238,9 @@ async def taller_insertar(taller: Taller) -> Taller:
                 %s, \
                 %s)"
         values = (taller.titulo_preparacion,
-                    taller.detalle_preparacion,
-                    taller.semana,
-                    taller.sigla)
+                  taller.detalle_preparacion,
+                  taller.semana,
+                  taller.sigla)
         async with db.cursor() as cursor:
             await cursor.execute(query, values)
             taller.id_taller = cursor.lastrowid
@@ -322,16 +317,16 @@ async def taller_producto_lista(id_taller: int):
     producto: ProductoTaller = None
     productos: List[ProductoTaller] = []
     for row in result:
-        producto = ProductoTaller(id_producto = row[0], \
-                                    id_taller = row[1], \
-                                    cod_agrupador = row[2], \
-                                    cantidad = row[3], \
-                                    nom_unidad_medida = row[4], \
-                                    nom_producto = row[5], \
-                                    nom_categ_producto = row[6], \
-                                    nom_agrupador = row[7], \
-                                    precio = row[8], \
-                                    total = row[9])
+        producto = ProductoTaller(id_producto=row[0],
+                                  id_taller=row[1],
+                                  cod_agrupador=row[2],
+                                  cantidad=row[3],
+                                  nom_unidad_medida=row[4],
+                                  nom_producto=row[5],
+                                  nom_categ_producto=row[6],
+                                  nom_agrupador=row[7],
+                                  precio=row[8],
+                                  total=row[9],)
 
         productos.append(producto)
 
@@ -340,16 +335,18 @@ async def taller_producto_lista(id_taller: int):
 
 @router.get("/api/taller/{id_taller}/producto/{id_producto}/agrupador/{cod_agrupador}", summary="Recupera la especificación del uso de un producto para un taller específico y su agrupación", tags=["Talleres"])
 async def taller_producto_get(id_taller: int, id_producto: int, cod_agrupador: int):
-    producto: ProductoTaller = {"id_producto": 0,
-                                "id_taller": 0,
-                                "cod_agrupador": 0,
-                                "cantidad": 0,
-                                "nom_unidad_medida": None,
-                                "nom_producto": None,
-                                "nom_categ_producto": None,
-                                "nom_agrupador": None,
-                                "precio": 0,
-                                "total": 0}
+    producto: ProductoTaller = {
+        "id_producto": 0,
+        "id_taller": 0,
+        "cod_agrupador": 0,
+        "cantidad": 0,
+        "nom_unidad_medida": None,
+        "nom_producto": None,
+        "nom_categ_producto": None,
+        "nom_agrupador": None,
+        "precio": 0,
+        "total": 0
+    }
     query = " \
         select ct.id_producto as id_producto, \
             ct.id_taller as id_taller, \
@@ -383,16 +380,16 @@ async def taller_producto_get(id_taller: int, id_producto: int, cod_agrupador: i
             if not result:
                 return producto
 
-            producto = ProductoTaller(id_producto = result[0], \
-                                        id_taller = result[1], \
-                                        cod_agrupador = result[2], \
-                                        cantidad = result[3], \
-                                        nom_unidad_medida = result[4], \
-                                        nom_producto = result[5], \
-                                        nom_categ_producto = result[6], \
-                                        nom_agrupador = result[7], \
-                                        precio = result[8], \
-                                        total = result[9])
+            producto = ProductoTaller(id_producto=result[0],
+                                      id_taller=result[1],
+                                      cod_agrupador=result[2],
+                                      cantidad=result[3],
+                                      nom_unidad_medida=result[4],
+                                      nom_producto=result[5],
+                                      nom_categ_producto=result[6],
+                                      nom_agrupador=result[7],
+                                      precio=result[8],
+                                      total=result[9],)
 
             return producto
 
@@ -441,7 +438,7 @@ async def producto_taller_eliminar(id_taller: int, id_producto: int, cod_agrupad
                 "id_taller": id_taller,
                 "eliminado": False,
                 "msg_error": "Taller no se puede eliminar por integridad de datos"
-                }
+            }
         if "Connection" in error_message:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
         else:
@@ -470,11 +467,12 @@ async def producto_taller_update(producto: ProductoTaller) -> ProductoTaller:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "update config_taller \
-                    set cantidad = %s \
-                where id_taller = %s and \
-                    id_producto = %s and \
-                    cod_agrupador = %s"
+        query = " \
+            update config_taller \
+                set cantidad = %s \
+            where id_taller = %s and \
+                id_producto = %s and \
+                cod_agrupador = %s"
         values = (producto.cantidad,
                   producto.id_taller,
                   producto.id_producto,
@@ -508,8 +506,8 @@ async def producto_taller_insertar(producto: ProductoTaller) -> ProductoTaller:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = \
-            "insert into config_taller ( \
+        query = " \
+            insert into config_taller ( \
                 id_taller, \
                 id_producto, \
                 cod_agrupador, \

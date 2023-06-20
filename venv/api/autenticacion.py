@@ -19,10 +19,11 @@ async def autenticacion(autenticacion: Autenticacion) -> Autenticacion:
 
     try:
         autenticacion.login = autenticacion.login.strip()
-        query = "select id_usuario as id_usuario \
-                from usuario \
-                where login = %s and \
-                    hash_password = %s"
+        query = " \
+            select id_usuario as id_usuario \
+            from usuario \
+            where login = %s and \
+                hash_password = %s"
         values = (autenticacion.login, autenticacion.hash_password)
 
         async with db.cursor() as cursor:
@@ -66,9 +67,10 @@ async def autenticacion_password(cambio_password: CambioPassword):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "update usuario \
-                set hash_password = %s \
-                where id_usuario = %s"
+        query = " \
+            update usuario \
+            set hash_password = %s \
+            where id_usuario = %s"
         values = (nueva_password, cambio_password.id_usuario)
         async with db.cursor() as cursor:
             await cursor.execute(query, values)

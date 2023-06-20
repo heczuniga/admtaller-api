@@ -127,13 +127,13 @@ async def programacion_asignatura_lista(ano_academ: int, id_usuario: int):
     programacion: ProgramacionAsignatura = None
     for row in result:
         programacion = ProgramacionAsignatura(ano_academ=row[0],
-                                                cod_periodo_academ=row[1],
-                                                sigla=row[2],
-                                                seccion=row[3],
-                                                cod_carrera=row[4],
-                                                nom_carrera=row[5],
-                                                nom_asignatura=row[6],
-                                                nom_periodo_academ=row[7])
+                                              cod_periodo_academ=row[1],
+                                              sigla=row[2],
+                                              seccion=row[3],
+                                              cod_carrera=row[4],
+                                              nom_carrera=row[5],
+                                              nom_asignatura=row[6],
+                                              nom_periodo_academ=row[7])
 
         programaciones.append(programacion)
 
@@ -330,20 +330,20 @@ async def programacion_taller_lista(ano_academ: int, cod_periodo_academ: int, si
 
         # Resto del código...
         programacion = ProgramacionTaller(fecha=fecha_salida,
-                                        ano_academ=row[1],
-                                        cod_periodo_academ=row[2],
-                                        sigla=row[3],
-                                        seccion=row[4],
-                                        id_taller=row[5],
-                                        id_usuario=row[6],
-                                        nom_periodo_academ=row[7],
-                                        nom_asignatura=row[8],
-                                        titulo_preparacion=row[9],
-                                        semana=row[10],
-                                        login=row[11],
-                                        nom_preferido=row[12],
-                                        primer_apellido=row[13],
-                                        segundo_apellido=row[14])
+                                          ano_academ=row[1],
+                                          cod_periodo_academ=row[2],
+                                          sigla=row[3],
+                                          seccion=row[4],
+                                          id_taller=row[5],
+                                          id_usuario=row[6],
+                                          nom_periodo_academ=row[7],
+                                          nom_asignatura=row[8],
+                                          titulo_preparacion=row[9],
+                                          semana=row[10],
+                                          login=row[11],
+                                          nom_preferido=row[12],
+                                          primer_apellido=row[13],
+                                          segundo_apellido=row[14],)
 
         programaciones.append(programacion)
 
@@ -511,7 +511,7 @@ async def taller_eliminar(ano_academ: int, cod_periodo_academ: int, sigla: str, 
                 "fecha": fecha,
                 "eliminado": False,
                 "msg_error": "Programación de asignatura no se puede eliminar por integridad de datos"
-                }
+            }
         if "Connection" in error_message:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
         else:

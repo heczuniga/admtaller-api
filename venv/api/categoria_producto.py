@@ -45,7 +45,7 @@ async def categoria_producto_lista():
 
     # Armamos el diccionario de salida
     categoria_producto: CategoriaProducto = None
-    categorias_producto: List[CategoriaProductoa] = []
+    categorias_producto: List[CategoriaProducto] = []
     for row in result:
         categoria_producto = CategoriaProducto(cod_categ_producto=row[0],
                                                nom_categ_producto=row[1],)

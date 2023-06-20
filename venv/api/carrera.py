@@ -31,24 +31,26 @@ async def carrera_lista(id_usuario: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_CARRERA.value:
-        query = "select c.cod_carrera as cod_carrera, \
-	                c.nom_carrera as nom_carrera, \
-                    c.nom_carrera_abrev as nom_carrera_abrev \
-                from carrera c \
-                where c.cod_carrera = (select u.cod_carrera \
-                                        from usuario u \
-                                        where u.id_usuario = %s) \
-                order by c.cod_carrera asc"
+        query = " \
+            select c.cod_carrera as cod_carrera, \
+                c.nom_carrera as nom_carrera, \
+                c.nom_carrera_abrev as nom_carrera_abrev \
+            from carrera c \
+            where c.cod_carrera = (select u.cod_carrera \
+                                    from usuario u \
+                                    where u.id_usuario = %s) \
+            order by c.cod_carrera asc"
 
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_TI.value:
-        query = "select c.cod_carrera as cod_carrera, \
-	                c.nom_carrera as nom_carrera, \
-                    c.nom_carrera_abrev as nom_carrera_abrev \
-                from carrera c \
-                where 0 = (select 0 \
-						from usuario u \
-                        where u.id_usuario = %s) \
-                order by c.cod_carrera asc"
+        query = " \
+            select c.cod_carrera as cod_carrera, \
+                c.nom_carrera as nom_carrera, \
+                c.nom_carrera_abrev as nom_carrera_abrev \
+            from carrera c \
+            where 0 = (select 0 \
+                    from usuario u \
+                    where u.id_usuario = %s) \
+            order by c.cod_carrera asc"
 
     try:
         values = (id_usuario)
@@ -74,8 +76,8 @@ async def carrera_lista(id_usuario: int):
     carrera: Carrera = None
     for row in result:
         carrera = Carrera(cod_carrera=row[0],
-                            nom_carrera=row[1],
-                            nom_carrera_abrev=row[2])
+                          nom_carrera=row[1],
+                          nom_carrera_abrev=row[2])
         carreras.append(carrera)
 
     return carreras

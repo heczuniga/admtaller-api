@@ -52,8 +52,8 @@ async def param_lista():
     param: Param = None
     for row in result:
         param = Param(cod_param=row[0],
-                        nom_param=row[1],
-                        valor=row[2])
+                      nom_param=row[1],
+                      valor=row[2])
         params.append(param)
 
     return params
@@ -96,8 +96,8 @@ async def param_get(cod_param: int):
     param: Param = Param(cod_param=0, nom_param="", valor="")
     if result:
         param = Param(cod_param=result[0],
-                        nom_param=result[1],
-                        valor=result[2])
+                      nom_param=result[1],
+                      valor=result[2])
 
     return param
 
@@ -126,9 +126,10 @@ async def param_update(param: Param) -> Param:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "update param \
-                    set valor = %s \
-                where cod_param = %s"
+        query = " \
+            update param \
+                set valor = %s \
+            where cod_param = %s"
         values = (param.valor,
                   param.cod_param)
         async with db.cursor() as cursor:

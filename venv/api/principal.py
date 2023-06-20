@@ -36,8 +36,8 @@ async def principal(id_usuario: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_TI.value:
-        query = \
-            "select c.nom_carrera as nom_carrera, \
+        query = " \
+            select c.nom_carrera as nom_carrera, \
                 'Cantidad de asignaturas' as concepto, \
                 count(*) as valor \
             from asign a \
@@ -97,8 +97,8 @@ async def principal(id_usuario: int):
         dicc = await perfil_cod_carrera(id_usuario)
         cod_carrera = dicc["cod_carrera"]
 
-        query = \
-            "select c.nom_carrera as nom_carrera, \
+        query = " \
+            select c.nom_carrera as nom_carrera, \
                 'Cantidad de asignaturas' as concepto, \
                 count(*) as valor \
             from asign a \
@@ -158,8 +158,8 @@ async def principal(id_usuario: int):
         dicc = await param_ano_academ_valor()
         ano_academ = dicc["ano_academ"]
 
-        query = \
-            "select (select carr.nom_carrera \
+        query = " \
+            select (select carr.nom_carrera \
 		            from carrera carr \
 		            join usuario usu on carr.cod_carrera = usu.cod_carrera and \
 			        usu.id_usuario = %s) as nom_carrera, \
@@ -211,14 +211,14 @@ async def principal(id_usuario: int):
 
         if nom_carrera != nom_ultima_carrera:
             resumen = {"concepto": row[1],
-                        "valor": row[2]}
+                       "valor": row[2]}
             resumenes = []
             resumenes.append(resumen)
             dashboard = Dashboard(nom_carrera, resumenes)
             principal.append(dashboard)
         else:
             resumen = {"concepto": row[1],
-                        "valor": row[2]}
+                       "valor": row[2]}
             resumenes.append(resumen)
 
         nom_ultima_carrera = nom_carrera
