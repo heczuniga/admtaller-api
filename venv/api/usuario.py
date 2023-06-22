@@ -63,48 +63,50 @@ async def usuario_lista(id_usuario: int):
     # Dependiendo del perfil, filtramos por carrera o no
     query: str = None
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_CARRERA.value:
-        query = "select u.id_usuario as id_usuario, \
-                    u.login as login, \
-                    null as password, \
-                    u.primer_apellido as primer_apellido, \
-                    u.segundo_apellido as segundo_apellido, \
-                    u.nom as nom, \
-                    u.nom_preferido as nom_preferido, \
-                    u.cod_perfil as cod_perfil, \
-                    u.cod_carrera as nom_carrera, \
-                    p.nom_perfil as nom_perfil, \
-                    c.nom_carrera as nom_carrera \
-                from usuario u \
-                join perfil p on u.cod_perfil = p.cod_perfil \
-                join carrera c on u.cod_carrera = c.cod_carrera \
-                where u.cod_carrera = (select us.cod_carrera \
-                                    from usuario us \
-                                    where us.id_usuario = %s) \
-                order by u.cod_carrera asc, \
-                    u.primer_apellido asc, \
-                    u.segundo_apellido asc, \
-                    u.nom_preferido asc"
+        query = " \
+            select u.id_usuario as id_usuario, \
+                u.login as login, \
+                null as password, \
+                u.primer_apellido as primer_apellido, \
+                u.segundo_apellido as segundo_apellido, \
+                u.nom as nom, \
+                u.nom_preferido as nom_preferido, \
+                u.cod_perfil as cod_perfil, \
+                u.cod_carrera as nom_carrera, \
+                p.nom_perfil as nom_perfil, \
+                c.nom_carrera as nom_carrera \
+            from usuario u \
+            join perfil p on u.cod_perfil = p.cod_perfil \
+            join carrera c on u.cod_carrera = c.cod_carrera \
+            where u.cod_carrera = (select us.cod_carrera \
+                                from usuario us \
+                                where us.id_usuario = %s) \
+            order by u.cod_carrera asc, \
+                u.primer_apellido asc, \
+                u.segundo_apellido asc, \
+                u.nom_preferido asc"
 
     if perfil.cod_perfil == Const.K_ADMINISTRADOR_TI.value:
-        query = "select u.id_usuario as id_usuario, \
-                    u.login as login, \
-                    null as password, \
-                    u.primer_apellido as primer_apellido, \
-                    u.segundo_apellido as segundo_apellido, \
-                    u.nom as nom, \
-                    u.nom_preferido as nom_preferido, \
-                    u.cod_perfil as cod_perfil, \
-                    u.cod_carrera as nom_carrera, \
-                    p.nom_perfil as nom_perfil, \
-                    c.nom_carrera as nom_carrera \
-                from usuario u \
-                join perfil p on u.cod_perfil = p.cod_perfil \
-                join carrera c on u.cod_carrera = c.cod_carrera \
-                where u.id_usuario <> %s \
-                order by u.cod_carrera asc, \
-                    u.primer_apellido asc, \
-                    u.segundo_apellido asc, \
-                    u.nom_preferido asc"
+        query = " \
+        select u.id_usuario as id_usuario, \
+                u.login as login, \
+                null as password, \
+                u.primer_apellido as primer_apellido, \
+                u.segundo_apellido as segundo_apellido, \
+                u.nom as nom, \
+                u.nom_preferido as nom_preferido, \
+                u.cod_perfil as cod_perfil, \
+                u.cod_carrera as nom_carrera, \
+                p.nom_perfil as nom_perfil, \
+                c.nom_carrera as nom_carrera \
+            from usuario u \
+            join perfil p on u.cod_perfil = p.cod_perfil \
+            join carrera c on u.cod_carrera = c.cod_carrera \
+            where u.id_usuario <> %s \
+            order by u.cod_carrera asc, \
+                u.primer_apellido asc, \
+                u.segundo_apellido asc, \
+                u.nom_preferido asc"
 
     db = await get_db_connection()
     if db is None:
@@ -151,18 +153,18 @@ async def usuario_lista(id_usuario: int):
 @router.get("/api/usuario/{id_usuario_get}/{id_usuario}", response_model=Usuario, summary="Recupera un usuario en base a su ID", tags=["Usuarios"])
 async def usuario_get(id_usuario_get: int, id_usuario: int):
     usuario: Usuario = {
-            "id_usuario": 0,
-            "login": "",
-            "hash_password": "",
-            "primer_apellido": "",
-            "segundo_apellido": "",
-            "nom": "",
-            "nom_preferido": "",
-            "cod_perfil": 0,
-            "cod_carrera": 0,
-            "nom_perfil": "",
-            "nom_carrera": "",
-        }
+        "id_usuario": 0,
+        "login": "",
+        "hash_password": "",
+        "primer_apellido": "",
+        "segundo_apellido": "",
+        "nom": "",
+        "nom_preferido": "",
+        "cod_perfil": 0,
+        "cod_carrera": 0,
+        "nom_perfil": "",
+        "nom_carrera": "",
+    }
 
     # Si id_usuario_get = 0 se asume que es un usuario nuevo
     if id_usuario_get == 0:
@@ -173,8 +175,9 @@ async def usuario_get(id_usuario_get: int, id_usuario: int):
     # Si todo está correcto, Retornamos la respuesta de la API
     if not perfil:
         return usuario
-    # Perfil docente no debe ver nada
-    if perfil.cod_perfil == Const.K_DOCENTE.value:
+
+    # Perfil docente solo puede ver su propio usuario
+    if perfil.cod_perfil == Const.K_DOCENTE.value and id_usuario_get != id_usuario:
         return usuario
 
     db = await get_db_connection()
@@ -182,21 +185,22 @@ async def usuario_get(id_usuario_get: int, id_usuario: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
 
     try:
-        query = "select u.id_usuario as id_usuario, \
-                    u.login as login, \
-                    null as hash_password, \
-                    u.primer_apellido as primer_apellido, \
-                    u.segundo_apellido as segundo_apellido, \
-                    u.nom as nom, \
-                    u.nom_preferido as nom_preferido, \
-                    u.cod_perfil as cod_perfil, \
-                    u.cod_carrera as cod_carrera, \
-                    p.nom_perfil as nom_perfil, \
-                    c.nom_carrera as nom_carrera \
-                from usuario u \
-                join perfil p on u.cod_perfil = p.cod_perfil \
-                join carrera c on u.cod_carrera = c.cod_carrera \
-                where id_usuario = %s"
+        query = " \
+            select u.id_usuario as id_usuario, \
+                u.login as login, \
+                null as hash_password, \
+                u.primer_apellido as primer_apellido, \
+                u.segundo_apellido as segundo_apellido, \
+                u.nom as nom, \
+                u.nom_preferido as nom_preferido, \
+                u.cod_perfil as cod_perfil, \
+                u.cod_carrera as cod_carrera, \
+                p.nom_perfil as nom_perfil, \
+                c.nom_carrera as nom_carrera \
+            from usuario u \
+            join perfil p on u.cod_perfil = p.cod_perfil \
+            join carrera c on u.cod_carrera = c.cod_carrera \
+            where id_usuario = %s"
 
         values = (id_usuario_get)
         async with db.cursor() as cursor:
@@ -206,16 +210,16 @@ async def usuario_get(id_usuario_get: int, id_usuario: int):
                 return usuario
 
             usuario = Usuario(id_usuario=result[0],
-                            login=result[1],
-                            hash_password=None,
-                            primer_apellido=result[3],
-                            segundo_apellido=result[4],
-                            nom=result[5],
-                            nom_preferido=result[6],
-                            cod_perfil=result[7],
-                            cod_carrera=result[8],
-                            nom_perfil=result[9],
-                            nom_carrera=result[10])
+                              login=result[1],
+                              hash_password=None,
+                              primer_apellido=result[3],
+                              segundo_apellido=result[4],
+                              nom=result[5],
+                              nom_preferido=result[6],
+                              cod_perfil=result[7],
+                              cod_carrera=result[8],
+                              nom_perfil=result[9],
+                              nom_carrera=result[10])
             return usuario
 
     except aiomysql.Error as e:

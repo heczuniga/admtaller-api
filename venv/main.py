@@ -46,6 +46,8 @@ api = fastapi.FastAPI(
          "description": "API's relacionadas con los productos del sistema"},
         {"name": "Programación",
          "description": "API's relacionadas con la programación de los talleres"},
+        {"name": "Registro",
+         "description": "API's relacionadas con el registro de ejecución de los talleres"},
         {"name": "Reportes",
          "description": "API's relacionadas con los reportes de gestión"},
         {"name": "Talleres",

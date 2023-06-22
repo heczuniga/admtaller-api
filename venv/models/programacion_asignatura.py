@@ -14,4 +14,3 @@ class ProgramacionAsignatura(BaseModel):
     nom_carrera: Optional[str]
     nom_asignatura: Optional[str]
     nom_periodo_academ: Optional[str]
-

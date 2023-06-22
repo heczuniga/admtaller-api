@@ -1,7 +1,6 @@
 
 from pydantic import BaseModel
 from typing import Optional
-import datetime
 
 
 # Modelo que representa la programación de un taller específico
