@@ -12,6 +12,7 @@ class ProductoTaller(BaseModel):
     cantidad: float
     nom_unidad_medida: Optional[str]
     nom_producto: Optional[str]
+    cod_categ_producto: Optional[int]
     nom_categ_producto: Optional[str]
     nom_agrupador: Optional[str]
     precio: Optional[int]

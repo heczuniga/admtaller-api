@@ -266,7 +266,7 @@ async def taller_insertar(taller: Taller) -> Taller:
     return taller
 
 
-@router.get("/api/taller/{id_taller}/producto/lista", summary="Recupera la lista de los productos de un taller específico", tags=["Talleres"])
+@router.get("/api/taller/{id_taller}/producto/lista", response_model=List[ProductoTaller], summary="Recupera la lista de los productos de un taller específico", tags=["Talleres"])
 async def taller_producto_lista(id_taller: int):
 
     query = " \
@@ -276,6 +276,7 @@ async def taller_producto_lista(id_taller: int):
             ct.cantidad as cantidad, \
             um.nom_unidad_medida as nom_unidad_medida, \
             p.nom_producto as nom_producto, \
+            p.cod_categ_producto as cod_categ_producto, \
             cp.nom_categ_producto as nom_categ_producto, \
             a.nom_agrupador as nom_agrupador, \
             p.precio as precio, \
@@ -323,10 +324,11 @@ async def taller_producto_lista(id_taller: int):
                                   cantidad=row[3],
                                   nom_unidad_medida=row[4],
                                   nom_producto=row[5],
-                                  nom_categ_producto=row[6],
-                                  nom_agrupador=row[7],
-                                  precio=row[8],
-                                  total=row[9],)
+                                  cod_categ_producto=row[6],
+                                  nom_categ_producto=row[7],
+                                  nom_agrupador=row[8],
+                                  precio=row[9],
+                                  total=row[10],)
 
         productos.append(producto)
 
@@ -342,6 +344,7 @@ async def taller_producto_get(id_taller: int, id_producto: int, cod_agrupador: i
         "cantidad": 0,
         "nom_unidad_medida": None,
         "nom_producto": None,
+        "cod_categ_producto": None,
         "nom_categ_producto": None,
         "nom_agrupador": None,
         "precio": 0,
@@ -354,6 +357,7 @@ async def taller_producto_get(id_taller: int, id_producto: int, cod_agrupador: i
             ct.cantidad as cantidad, \
             um.nom_unidad_medida as nom_unidad_medida, \
             p.nom_producto as nom_producto, \
+            p.cod_categ_producto as cod_categ_producto, \
             cp.nom_categ_producto as nom_categ_producto, \
             a.nom_agrupador as nom_agrupador, \
             p.precio as precio, \
@@ -386,10 +390,11 @@ async def taller_producto_get(id_taller: int, id_producto: int, cod_agrupador: i
                                       cantidad=result[3],
                                       nom_unidad_medida=result[4],
                                       nom_producto=result[5],
-                                      nom_categ_producto=result[6],
-                                      nom_agrupador=result[7],
-                                      precio=result[8],
-                                      total=result[9],)
+                                      cod_categ_producto=result[6],
+                                      nom_categ_producto=result[7],
+                                      nom_agrupador=result[8],
+                                      precio=result[9],
+                                      total=result[10],)
 
             return producto
 

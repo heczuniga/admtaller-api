@@ -79,7 +79,7 @@ async def productos(id_usuario: int):
     return productos
 
 
-@router.delete("/api/producto/eliminar/{id_producto}/{id_usuario}", response_model=dict, summary="Elimina un producto para un determinao usuario", tags=["Productos"])
+@router.delete("/api/producto/eliminar/{id_producto}/{id_usuario}", response_model=dict, summary="Elimina un producto para un determinado usuario", tags=["Productos"])
 async def asignatura_eliminar(id_producto: int, id_usuario: int):
 
     # Determinamos el perfil del usuario para determinar qué información puede borrar
