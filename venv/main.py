@@ -18,6 +18,7 @@ from api import param
 from api import agrupador
 from api import unidad_medida
 from api import categoria_producto
+from api import consultas
 
 from database import get_db_connection
 
@@ -36,6 +37,8 @@ api = fastapi.FastAPI(
          "description": "API's relacionadas con la administración de carreras"},
         {"name": "Categorías de productos",
          "description": "API's relacionadas con las categorías de los productos"},
+        {"name": "Consultas",
+         "description": "API's relacionadas con consultas del sistema"},
         {"name": "Parámetros",
          "description": "API's relacionadas con los parámetros del sistema"},
         {"name": "Perfiles",
@@ -81,9 +84,10 @@ def configura_routers():
     api.include_router(agrupador.router)
     api.include_router(unidad_medida.router)
     api.include_router(categoria_producto.router)
+    api.include_router(consultas.router)
+
 
 # Método de configuración de base de datos    api.include_router(agrupador.router)
-
 async def configura_db():
     global db
     try:
