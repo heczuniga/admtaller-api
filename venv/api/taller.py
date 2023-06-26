@@ -280,7 +280,7 @@ async def taller_producto_lista(id_taller: int):
             cp.nom_categ_producto as nom_categ_producto, \
             a.nom_agrupador as nom_agrupador, \
             p.precio as precio, \
-            p.precio * ct.cantidad as total \
+            round(p.precio * ct.cantidad, 0) as total \
         from config_taller ct \
         join producto p on ct.id_producto = p.id_producto \
         join categ_producto cp on cp.cod_categ_producto = p.cod_categ_producto \

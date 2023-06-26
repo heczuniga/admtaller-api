@@ -16,6 +16,7 @@ from infrastructure.constants import Const
 
 router = fastapi.APIRouter()
 
+
 @router.get("/api/principal/{id_usuario}", summary="Obtiene los dashboards para presentar en la página principal", tags=["Principal"])
 async def principal(id_usuario: int):
     nom_carrera: str = None
@@ -163,7 +164,7 @@ async def principal(id_usuario: int):
 		            from carrera carr \
 		            join usuario usu on carr.cod_carrera = usu.cod_carrera and \
 			        usu.id_usuario = %s) as nom_carrera, \
-                concat('Cantidad de talleres asignados año ', '" + ano_academ + "') as concepto, \
+                'Cantidad de talleres asignados' as concepto, \
                 count(*) as valor \
             from prog_taller pt \
             join usuario u on pt.id_usuario = u.id_usuario \
@@ -175,14 +176,14 @@ async def principal(id_usuario: int):
 		            from carrera carr \
 		            join usuario usu on carr.cod_carrera = usu.cod_carrera and \
 			        usu.id_usuario = %s) as nom_carrera, \
-                concat('Cantidad de talleres realizados año ', '" + ano_academ + "') as concepto, \
+                'Cantidad de talleres registrados' as concepto, \
                 count(*) as valor \
             from regis_taller rt \
             join usuario u on rt.id_usuario = u.id_usuario \
             join carrera c on u.cod_carrera = c.cod_carrera \
             where rt.id_usuario = %s and \
                 rt.ano_academ = %s"
-                
+
         try:
             values = (id_usuario, id_usuario, ano_academ, id_usuario, id_usuario, ano_academ)
             async with db.cursor() as cursor:

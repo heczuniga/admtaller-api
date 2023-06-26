@@ -41,7 +41,7 @@ async def consulta_valorizacion_taller(id_usuario: int):
                 t.semana as semana, \
                 t.id_taller as id_taller, \
                 t.titulo_preparacion as titulo_preparacion, \
-                round(sum(p.precio * ct.cantidad), 0) as total_taller \
+                sum(round(p.precio * ct.cantidad, 0)) as total_taller \
             from asign a \
             join taller t on t.sigla = a.sigla \
             join config_taller ct on t.id_taller = ct.id_taller \
@@ -86,7 +86,7 @@ async def consulta_valorizacion_taller(id_usuario: int):
                 t.semana as semana, \
                 t.id_taller as id_taller, \
                 t.titulo_preparacion as titulo_preparacion, \
-                round(sum(p.precio * ct.cantidad), 0) as total_taller \
+                sum(round(p.precio * ct.cantidad, 0)) as total_taller \
             from asign a \
             join taller t on t.sigla = a.sigla \
             join config_taller ct on t.id_taller = ct.id_taller \
@@ -159,12 +159,12 @@ async def consulta_presupuesto_estimado_asignatura(ano_academ: int, id_usuario: 
                 pa.sigla as sigla, \
                 a.nom_asign as nom_asign, \
                 count(pa.seccion) as total_seccion, \
-                (select round(sum(pr.precio * cota.cantidad), 0) \
+                (select sum(round(pr.precio * cota.cantidad, 0)) \
                     from config_taller cota \
                     join producto pr on cota.id_producto = pr.id_producto \
                     join taller ta on cota.id_taller = ta.id_taller \
                     where ta.sigla = pa.sigla) as total_asign, \
-                (count(pa.seccion) * (select round(sum(pr.precio * cota.cantidad), 0) as total_taller \
+                (count(pa.seccion) * (select sum(round(pr.precio * cota.cantidad, 0)) as total_taller \
                                         from config_taller cota \
                                         join producto pr on cota.id_producto = pr.id_producto \
                                         join taller ta on cota.id_taller = ta.id_taller \
@@ -205,12 +205,12 @@ async def consulta_presupuesto_estimado_asignatura(ano_academ: int, id_usuario: 
                 pa.sigla as sigla, \
                 a.nom_asign as nom_asign, \
                 count(pa.seccion) as total_seccion, \
-                (select round(sum(pr.precio * cota.cantidad), 0) \
+                (select sum(round(pr.precio * cota.cantidad, 0)) \
                     from config_taller cota \
                     join producto pr on cota.id_producto = pr.id_producto \
                     join taller ta on cota.id_taller = ta.id_taller \
                     where ta.sigla = pa.sigla) as total_asign, \
-                (count(pa.seccion) * (select round(sum(pr.precio * cota.cantidad), 0) as total_taller \
+                (count(pa.seccion) * (select sum(round(pr.precio * cota.cantidad, 0)) as total_taller \
                                         from config_taller cota \
                                         join producto pr on cota.id_producto = pr.id_producto \
                                         join taller ta on cota.id_taller = ta.id_taller \
