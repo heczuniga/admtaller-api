@@ -1,6 +1,5 @@
 
 from pydantic import BaseModel
-from typing import Optional
 
 
 # Modelo que representa un agrupador

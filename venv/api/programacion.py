@@ -189,7 +189,7 @@ async def asignatura_eliminar(ano_academ: int, cod_periodo_academ: int, sigla: s
                 "seccion": seccion,
                 "eliminado": False,
                 "msg_error": "Programación de asignatura no se puede eliminar por integridad de datos"
-                }
+            }
         if "Connection" in error_message:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
         else:

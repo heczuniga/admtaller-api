@@ -9,7 +9,6 @@ from api import perfil
 from api import principal
 from api import asignatura
 from api import programacion
-from api import reporte
 from api import producto
 from api import registro
 from api import taller
@@ -51,8 +50,6 @@ api = fastapi.FastAPI(
          "description": "API's relacionadas con la programación de los talleres"},
         {"name": "Registro",
          "description": "API's relacionadas con el registro de ejecución de los talleres"},
-        {"name": "Reportes",
-         "description": "API's relacionadas con los reportes de gestión"},
         {"name": "Talleres",
          "description": "API's relacionadas con la administración de los talleres"},
         {"name": "Unidades de medida",
@@ -75,7 +72,6 @@ def configura_routers():
     api.include_router(principal.router)
     api.include_router(asignatura.router)
     api.include_router(programacion.router)
-    api.include_router(reporte.router)
     api.include_router(producto.router)
     api.include_router(registro.router)
     api.include_router(taller.router)
@@ -87,7 +83,7 @@ def configura_routers():
     api.include_router(consultas.router)
 
 
-# Método de configuración de base de datos    api.include_router(agrupador.router)
+# Método de configuración de base de datos
 async def configura_db():
     global db
     try:

@@ -156,7 +156,7 @@ async def asignatura_eliminar(sigla: str, id_usuario: int):
                 "sigla": sigla,
                 "eliminado": False,
                 "msg_error": "Asignatura no se puede eliminar por integridad de datos"
-                }
+            }
         if "Connection" in error_message:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al conectar a la base de datos")
         else:
